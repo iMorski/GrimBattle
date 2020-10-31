@@ -31,7 +31,7 @@ TextureImporter:
     second: Stormhead-Run-09
   - first:
       213: 2067128542255235676
-    second: Stormhead-Run-010
+    second: Stormhead-Run-10
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -318,7 +318,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Run-010
+      name: Stormhead-Run-10
       rect:
         serializedVersion: 2
         x: 0

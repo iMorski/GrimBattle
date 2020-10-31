@@ -4,31 +4,31 @@ TextureImporter:
   internalIDToNameTable:
   - first:
       213: 773362397302433733
-    second: Stormhead-Idle-01
+    second: Stormhead-Wait-01
   - first:
       213: -8825633435422160801
-    second: Stormhead-Idle-02
+    second: Stormhead-Wait-02
   - first:
       213: -6830377878207143403
-    second: Stormhead-Idle-03
+    second: Stormhead-Wait-03
   - first:
       213: 7372915479454607041
-    second: Stormhead-Idle-04
+    second: Stormhead-Wait-04
   - first:
       213: 1980096076722024460
-    second: Stormhead-Idle-05
+    second: Stormhead-Wait-05
   - first:
       213: 6147280407126551745
-    second: Stormhead-Idle-06
+    second: Stormhead-Wait-06
   - first:
       213: -319029702349342188
-    second: Stormhead-Idle-07
+    second: Stormhead-Wait-07
   - first:
       213: -1030541208747155425
-    second: Stormhead-Idle-08
+    second: Stormhead-Wait-08
   - first:
       213: -5704356412509088303
-    second: Stormhead-Idle-09
+    second: Stormhead-Wait-09
   - first:
       213: 724539961438649733
     second: Stormhead-Idle_9
@@ -132,7 +132,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Stormhead-Idle-01
+      name: Stormhead-Wait-01
       rect:
         serializedVersion: 2
         x: 0
@@ -140,7 +140,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -153,7 +153,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-02
+      name: Stormhead-Wait-02
       rect:
         serializedVersion: 2
         x: 0
@@ -161,7 +161,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -174,7 +174,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-03
+      name: Stormhead-Wait-03
       rect:
         serializedVersion: 2
         x: 0
@@ -182,7 +182,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -195,7 +195,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-04
+      name: Stormhead-Wait-04
       rect:
         serializedVersion: 2
         x: 0
@@ -203,7 +203,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -216,7 +216,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-05
+      name: Stormhead-Wait-05
       rect:
         serializedVersion: 2
         x: 0
@@ -224,7 +224,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -237,7 +237,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-06
+      name: Stormhead-Wait-06
       rect:
         serializedVersion: 2
         x: 0
@@ -245,7 +245,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -258,7 +258,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-07
+      name: Stormhead-Wait-07
       rect:
         serializedVersion: 2
         x: 0
@@ -266,7 +266,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -279,7 +279,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-08
+      name: Stormhead-Wait-08
       rect:
         serializedVersion: 2
         x: 0
@@ -287,7 +287,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -300,7 +300,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Stormhead-Idle-09
+      name: Stormhead-Wait-09
       rect:
         serializedVersion: 2
         x: 0
@@ -308,7 +308,7 @@ TextureImporter:
         width: 119
         height: 124
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
