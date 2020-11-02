@@ -306,6 +306,7 @@ GameObject:
   - component: {fileID: 820968569}
   - component: {fileID: 820968570}
   - component: {fileID: 820968571}
+  - component: {fileID: 820968572}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -321,7 +322,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 820968568}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: 5}
+  m_LocalPosition: {x: -4, y: 1, z: 5}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_Children: []
   m_Father: {fileID: 469099420}
@@ -366,8 +367,7 @@ SpriteRenderer:
   m_SortingLayerID: 275041755
   m_SortingLayer: 1
   m_SortingOrder: 83
-  m_Sprite: {fileID: -1882347247711912902, guid: 23eeb31b8bdc9e947839197f3d9c3a41,
-    type: 3}
+  m_Sprite: {fileID: 773362397302433733, guid: 015c80e729a56a94981885b571fc8901, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -377,7 +377,7 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
-  m_SpriteSortPoint: 0
+  m_SpriteSortPoint: 1
 --- !u!95 &820968571
 Animator:
   serializedVersion: 3
@@ -388,7 +388,7 @@ Animator:
   m_GameObject: {fileID: 820968568}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: b5345bbf5f4baf14ca9edcdd4f00ca75, type: 2}
+  m_Controller: {fileID: 9100000, guid: 02adf4570b558e747bf8ab07b22da2e0, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -397,6 +397,24 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &820968572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 820968568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2046ceef17e40ae4a8047500f413c0e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idle: {fileID: 0}
+  run: {fileID: 0}
+  attack: {fileID: 0}
+  death: {fileID: 0}
+  isHit: {fileID: 0}
+  animator: {fileID: 0}
 --- !u!1 &881597111
 GameObject:
   m_ObjectHideFlags: 0

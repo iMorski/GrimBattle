@@ -1,34 +1,46 @@
 fileFormatVersion: 2
-guid: c7332e5b889da9e44a8ec770c3e6bfd8
+guid: 015c80e729a56a94981885b571fc8901
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8793639957104055765
-    second: idle_0
+      213: 773362397302433733
+    second: Stormhead-Wait-01
   - first:
-      213: 6084859605308855041
-    second: idle_1
+      213: -8825633435422160801
+    second: Stormhead-Wait-02
   - first:
-      213: 8603369663158992956
-    second: idle_2
+      213: -6830377878207143403
+    second: Stormhead-Wait-03
   - first:
-      213: -5906421172241655209
-    second: idle_3
+      213: 7372915479454607041
+    second: Stormhead-Wait-04
   - first:
-      213: 5704420531145803721
-    second: idle_4
+      213: 1980096076722024460
+    second: Stormhead-Wait-05
   - first:
-      213: -148617073940163930
-    second: idle_5
+      213: 6147280407126551745
+    second: Stormhead-Wait-06
   - first:
-      213: 4729606205655721961
-    second: idle_6
+      213: -319029702349342188
+    second: Stormhead-Wait-07
   - first:
-      213: -2073685336235588006
-    second: idle_7
+      213: -1030541208747155425
+    second: Stormhead-Wait-08
   - first:
-      213: 512795395688303107
-    second: idle_8
+      213: -5704356412509088303
+    second: Stormhead-Wait-09
+  - first:
+      213: 724539961438649733
+    second: Stormhead-Idle_9
+  - first:
+      213: 614405787601322337
+    second: Stormhead-Idle_10
+  - first:
+      213: -5440999494439900781
+    second: Stormhead-Wait_0
+  - first:
+      213: 3664617182822727834
+    second: Stormhead-Wait_1
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -58,7 +70,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: -1
+    filterMode: 0
     aniso: -1
     mipBias: -100
     wrapU: 1
@@ -74,7 +86,7 @@ TextureImporter:
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spriteGenerateFallbackPhysicsShape: 0
+  spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
@@ -110,194 +122,206 @@ TextureImporter:
     overridden: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: idle_0
+      name: Stormhead-Wait-01
       rect:
         serializedVersion: 2
         x: 0
         y: 992
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5d55ed543f8490a70800000000000000
-      internalID: 8793639957104055765
+      spriteID: 5c72bddb0098bba00800000000000000
+      internalID: 773362397302433733
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_1
+      name: Stormhead-Wait-02
       rect:
         serializedVersion: 2
         x: 0
         y: 868
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 103de827293c17450800000000000000
-      internalID: 6084859605308855041
+      spriteID: f580ad3962d058580800000000000000
+      internalID: -8825633435422160801
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_2
+      name: Stormhead-Wait-03
       rect:
         serializedVersion: 2
         x: 0
         y: 744
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: c30c6f3402f456770800000000000000
-      internalID: 8603369663158992956
+      spriteID: 512e6c7328f9531a0800000000000000
+      internalID: -6830377878207143403
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_3
+      name: Stormhead-Wait-04
       rect:
         serializedVersion: 2
         x: 0
         y: 620
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 75a90b6cc3d280ea0800000000000000
-      internalID: -5906421172241655209
+      spriteID: 1c6eedfa09bd15660800000000000000
+      internalID: 7372915479454607041
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_4
+      name: Stormhead-Wait-05
       rect:
         serializedVersion: 2
         x: 0
         y: 496
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9c70460ff3c2a2f40800000000000000
-      internalID: 5704420531145803721
+      spriteID: c00392a04e6ba7b10800000000000000
+      internalID: 1980096076722024460
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_5
+      name: Stormhead-Wait-06
       rect:
         serializedVersion: 2
         x: 0
         y: 372
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6a21d340f8100fdf0800000000000000
-      internalID: -148617073940163930
+      spriteID: 1cc2f79e5f68f4550800000000000000
+      internalID: 6147280407126551745
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_6
+      name: Stormhead-Wait-07
       rect:
         serializedVersion: 2
         x: 0
         y: 248
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 9e7a79719cfe2a140800000000000000
-      internalID: 4729606205655721961
+      spriteID: 41a3bae0d24929bf0800000000000000
+      internalID: -319029702349342188
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_7
+      name: Stormhead-Wait-08
       rect:
         serializedVersion: 2
         x: 0
         y: 124
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a56cdbd6c2ac833e0800000000000000
-      internalID: -2073685336235588006
+      spriteID: f10693e0b38c2b1f0800000000000000
+      internalID: -1030541208747155425
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: idle_8
+      name: Stormhead-Wait-09
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 119
         height: 124
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 30a057a02b0dd1700800000000000000
-      internalID: 512795395688303107
+      spriteID: 1d59c28d01e06d0b0800000000000000
+      internalID: -5704356412509088303
       vertices: []
       indices: 
       edges: []
@@ -305,7 +329,7 @@ TextureImporter:
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: d2da46815384fa2468fd5f87ed83b2e3
     internalID: 0
     vertices: []
     indices: 
