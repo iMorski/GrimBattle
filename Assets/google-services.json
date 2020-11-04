@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "262277069780",
+    "firebase_url": "https://grim-battle.firebaseio.com",
+    "project_id": "grim-battle",
+    "storage_bucket": "grim-battle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:262277069780:android:ee13b3ed8f4b685b41b441",
+        "android_client_info": {
+          "package_name": "com.grim.battle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "262277069780-vovfsp74hc8j7qav9m2otrmvmc0pain0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVcB0Yvs0kfRL1FO5MGiVUSfXNDJATrFI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "262277069780-vovfsp74hc8j7qav9m2otrmvmc0pain0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
