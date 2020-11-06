@@ -195,12 +195,16 @@ public class Character : MonoBehaviour
         startAnimation(AnimationType.Attack);
     }
 
+    private void updateNextScenePosition(float xCoord) {
+        // gameInfo.nextScenePosition = getGameController().getNextScenePositionForPlayer(playerId);
+    }
+
     private void addMoveAction(MoveType moveType) {
         ActionInfo movementInfo = new ActionInfo(ActionType.Move);
         if (moveType == MoveType.ToEnemy) {
             movementInfo.destination = gameInfo.curEnemy.getViewPortPosition(); 
-        } else if(moveType == MoveType.ToNextScene) {
-            // gameInfo.nextScenePosition = getScene().getNextScenePositionForPlayer(playerId);
+        } else if(moveType == MoveType.ToNextScene) { 
+            updateNextScenePosition(1.2f);
             movementInfo.destination = gameInfo.nextScenePosition; 
         } else if(moveType == MoveType.FromEnemy) {
             movementInfo.destination = characterState.lastViewPortPosition;
