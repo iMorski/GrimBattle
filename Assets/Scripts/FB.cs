@@ -5,7 +5,7 @@ using Firebase.Database;
 using Firebase.Unity.Editor;
 using UnityEngine;
 
-public class FirebaseController : MonoBehaviour
+public class FB : MonoBehaviour
 {
     [SerializeField] private string _Link;
     [SerializeField] private string _PrettyTextPlayer;
@@ -72,6 +72,8 @@ public class FirebaseController : MonoBehaviour
     
     private void Awake()
     {
+        DontDestroyOnLoad(gameObject);
+        
         Link = _Link;
         PrettyTextPlayer = _PrettyTextPlayer;
         PrettyTextRoom = _PrettyTextRoom;
@@ -237,7 +239,7 @@ public class FirebaseController : MonoBehaviour
         }
         
         ConnectionStep = 3.3;
-        Debug.Log($"Step: 3.3 - Checking room list");
+        Debug.Log("Step: 3.3 - Checking room list");
         
         DataSnapshot ActiveRoom = Argument.Snapshot;
         MyRoom = Search(ActiveRoom, MyName);
@@ -323,15 +325,15 @@ public class FirebaseController : MonoBehaviour
         }
     }
 
-    public static void Write()
+    public static void Write(string Player, Dictionary<string, string> DataDictionary)
     {
-        foreach (KeyValuePair<string, string> Data in MyData)
+        foreach (KeyValuePair<string, string> Data in DataDictionary)
         {
-            BaseReference.Child("ActivePlayer").Child(MyName).Child(Data.Key).SetValueAsync(Data.Value);
+            BaseReference.Child("ActivePlayer").Child(Player).Child(Data.Key).SetValueAsync(Data.Value);
 
             if (MyRoom != "")
             {
-                BaseReference.Child("ActiveRoom").Child(MyRoom).Child(MyName).Child(Data.Key).SetValueAsync(Data.Value);
+                BaseReference.Child("ActiveRoom").Child(MyRoom).Child(Player).Child(Data.Key).SetValueAsync(Data.Value);
             }
         }
     }
