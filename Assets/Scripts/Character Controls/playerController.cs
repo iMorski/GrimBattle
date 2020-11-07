@@ -5,7 +5,6 @@ using UnityEngine;
 
 public class playerController : MonoBehaviour
 {
-    [SerializeField] private Animator animatorObject;
     // CODE BELOW RELIES ON AnimationClip names being the same as actual animation names for 
     // .Play function in the animator
     public AnimationClip Run;
@@ -13,9 +12,10 @@ public class playerController : MonoBehaviour
     public AnimationClip Attack;
     public AnimationClip Death;
     public AnimationClip IsHit;
-    public Camera gameCamera;
 
-    [SerializeField] private Character character;
+    // [SerializeField] private GameObject gameO;
+    [SerializeField] private Game game;
+    
     void Start()
     {
         Dictionary<Character.AnimationType, string> animationTypeToString = new Dictionary<Character.AnimationType, string>();
@@ -38,25 +38,26 @@ public class playerController : MonoBehaviour
         animationTypeToString.Add(Character.AnimationType.Death, death);
         animationTypeToString.Add(Character.AnimationType.Attack, attack);
 
-        animatorObject = this.gameObject.GetComponent<Animator>();
+        Animator animatorObject = this.gameObject.GetComponent<Animator>();
         Character.CharacterStats stats = new Character.CharacterStats(100);
         stats.movSpeed = 0.22f;
         Character.SceneInfo sceneInfo = new Character.SceneInfo();
-        sceneInfo.mainCamera = gameCamera;
         sceneInfo.animator = animatorObject;
         sceneInfo.gameObject = this.gameObject;
 
-        character = this.gameObject.AddComponent<Character>();
-        character.init(stats, sceneInfo, animationTypeToString);
+        Character character = this.gameObject.AddComponent<Character>();
+        character.init(game, stats, sceneInfo, animationTypeToString);
+        character.setName("PLAYER");
     }
 
-    private int frameC = 0;
+    // private int frameC = 0;
     void Update()
     {
-        if (frameC == 100) {
-            character.addActionSequence(Character.ActionSequenceType.MoveToNextScene);
-        }
+        // if (frameC == 100) {
+        //     // character.addActionSequence(Character.ActionSequenceType.HitEnemy);
+        //     character.addActionSequence(Character.ActionSequenceType.MoveToNextScene);
+        // }
 
-        frameC++;
+        // frameC++;
     }
 }

@@ -26,10 +26,6 @@ public class Character : MonoBehaviour
         Die
 	} 
 
-	private enum ActionState {
-		Idle,
-		InAction
-	}
     private enum MoveType {
         ToEnemy,
         FromEnemy,
@@ -39,11 +35,11 @@ public class Character : MonoBehaviour
         public ActionInfo(ActionType aType) {
             actionType = aType;
             damage = 0;
-            destination = new Vector2(0.0f, 0.0f);
+            destination = new Vector3(0.0f, 0.0f);
             associatedAnimType = AnimationType.Run;
         }
 
-        public ActionInfo(ActionType aType, int dam, Vector2 dest) {
+        public ActionInfo(ActionType aType, int dam, Vector3 dest) {
             actionType = aType;
             damage = dam;
             destination = dest;
@@ -66,14 +62,16 @@ public class Character : MonoBehaviour
             movSpeed = 1.0f;
             critChance = 0.1f;
             critMult = 2.1f;
+            team = 0;
         }
 
-        public CharacterStats(int health, int dmg, float speed, float cChance, float cMult) {
+        public CharacterStats(int health, int dmg, float speed, float cChance, float cMult, int t) {
             HP = health;
             damage = dmg;
             movSpeed = speed;
             critChance = cChance;
             critMult = cMult;
+            team = t;
         }
 
         public int HP;
@@ -81,27 +79,30 @@ public class Character : MonoBehaviour
         public float movSpeed;
         public float critChance;
         public float critMult;
+        public int team;
     }
 
     private struct CharacterState {
+        public string name;
         public int HP;
         public int damage;
         public float damageBuff;
         public float critChance;
         public float critMult;
         public float speed; // per unit time 
-        public ActionState actionState;
+        // public ActionState actionState;
+        public bool inAction;
         public bool alive;
         public bool isMoving;
         public Vector3 moveDirection;
         public Vector3 viewPortPosition;
         public Vector3 lastViewPortPosition; // position before last moveAction
         public  AnimationType curAnimationType;
+        public int team;
     }
 
     public struct SceneInfo {
         public Animator animator;
-        public Camera mainCamera;
         public GameObject gameObject;
     }
 
@@ -114,10 +115,15 @@ public class Character : MonoBehaviour
 
     private CharacterState characterState;
     private SceneInfo sceneEntities;
-    private GameInfo gameInfo;
+    private Game game;
+    private int gameID;
 
-    public void init(CharacterStats characterStats, SceneInfo sInfo, Dictionary<AnimationType, string> animBundle) {
+    public void init(Game game, CharacterStats characterStats, SceneInfo sInfo, Dictionary<AnimationType, string> animBundle) {
+        this.game = game;
+        gameID = 0;
+
         characterState = new CharacterState();
+        characterState.name = "NoName";
         characterState.HP = characterStats.HP;
         characterState.speed = characterStats.movSpeed;
         characterState.damage = characterStats.damage;
@@ -127,24 +133,40 @@ public class Character : MonoBehaviour
     	characterState.curAnimationType = AnimationType.Idle;
         characterState.isMoving = false;
         characterState.alive = true;
-        characterState.actionState = ActionState.Idle;
+        // characterState.actionState = ActionState.Idle;
+        characterState.inAction = false;
         characterState.moveDirection = new Vector3(1.0f, 0.0f, 0.0f);
+        characterState.team = characterStats.team;
 
         sceneEntities = new SceneInfo();
         sceneEntities.animator = sInfo.animator;
-        sceneEntities.mainCamera = sInfo.mainCamera;
         sceneEntities.gameObject = sInfo.gameObject;
-
-        characterState.viewPortPosition = new Vector3(0.1f, 0.75f, sceneEntities.gameObject.transform.position.z);
+        
+        characterState.viewPortPosition = this.game.getMainCamera().WorldToViewportPoint(sceneEntities.gameObject.transform.position);
         characterState.lastViewPortPosition = characterState.viewPortPosition;
-
-        gameInfo = new GameInfo();
-        gameInfo.nextScenePosition = new Vector3(1.2f, characterState.viewPortPosition.y,  characterState.viewPortPosition.z); 
 
         animTypeToString = animBundle;
 
         setViewPortPosition(characterState.viewPortPosition);
         startAnimation(AnimationType.Idle);
+
+        registerInScene();
+    }
+
+    public string getName() {
+        return characterState.name;
+    }
+
+    public void setName(string Name) {
+        characterState.name = Name;
+    }
+
+    public int getGameID() {
+        return gameID;
+    }
+
+    public void setGameID(int ID) {
+        gameID = ID;
     }
 
     private void startAnimation(AnimationType animationType) {
@@ -156,14 +178,14 @@ public class Character : MonoBehaviour
     }
 
     private void setViewPortPosition(Vector3 vPpos) {
-        Vector3 worldPos = sceneEntities.mainCamera.ViewportToWorldPoint(vPpos);
+        Vector3 worldPos = game.getMainCamera().ViewportToWorldPoint(vPpos);
         worldPos.z = vPpos.z;
         Debug.Log("position set : " + worldPos.ToString());
         sceneEntities.gameObject.transform.position = worldPos;
         characterState.viewPortPosition = vPpos;
     }
 
-    public Vector2 getViewPortPosition() {
+    public Vector3 getViewPortPosition() {
         return characterState.viewPortPosition;
     }
 
@@ -176,12 +198,16 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void setEnemy(Character enemy) {
-        gameInfo.curEnemy = enemy;
+    // public void setEnemy(Character enemy) {
+    //     gameInfo.curEnemy = enemy;
+    // }
+
+    public bool isInAction() {
+        return characterState.inAction;
     }
 
     private void startQueueAction(ActionInfo actionInfo) {
-        characterState.actionState = ActionState.InAction;
+        characterState.inAction = true;
 
         if (actionInfo.actionType == ActionType.Move) {
             characterState.isMoving = true;
@@ -190,7 +216,8 @@ public class Character : MonoBehaviour
 
     private void addAttackAction() {
         int damage = getAttackDamage();
-        gameInfo.curEnemy.receiveDamage(damage);
+        // gameInfo.curEnemy.receiveDamage(damage);
+        game.getCurrentEnemy().receiveDamage(damage);
 
         startAnimation(AnimationType.Attack);
     }
@@ -199,13 +226,20 @@ public class Character : MonoBehaviour
         // gameInfo.nextScenePosition = getGameController().getNextScenePositionForPlayer(playerId);
     }
 
+    public int getTeam() {
+        return characterState.team;
+    }
+
+    public bool getAlive() {
+        return characterState.alive;
+    }
+
     private void addMoveAction(MoveType moveType) {
         ActionInfo movementInfo = new ActionInfo(ActionType.Move);
         if (moveType == MoveType.ToEnemy) {
-            movementInfo.destination = gameInfo.curEnemy.getViewPortPosition(); 
+            movementInfo.destination = game.getCurrentEnemy().getViewPortPosition(); 
         } else if(moveType == MoveType.ToNextScene) { 
-            updateNextScenePosition(1.2f);
-            movementInfo.destination = gameInfo.nextScenePosition; 
+            movementInfo.destination = game.getNextScenePositionForCharacterID(gameID); 
         } else if(moveType == MoveType.FromEnemy) {
             movementInfo.destination = characterState.lastViewPortPosition;
         } else {
@@ -250,10 +284,18 @@ public class Character : MonoBehaviour
         }
     }
 
+    public void setAsEnemy() {
+        // enable red circle under
+    }
+
+    public void unsetAsEnemy() {
+        // disable red circle under
+    }
+
     public void endAction() {
         Debug.Log(" END ACTION ");
 
-    	characterState.actionState = ActionState.Idle;
+    	characterState.inAction = false;
     	startAnimation(AnimationType.Idle);
         characterState.isMoving = false;
 
@@ -262,8 +304,12 @@ public class Character : MonoBehaviour
         }
     }
 
+    public void registerInScene() {
+        game.registerCharacter(this);
+    }
+
     private void updateCurrentAction() {
-        if (characterState.actionState == ActionState.Idle) {
+        if (characterState.inAction == false) {
             return;
         } 
 
@@ -283,7 +329,7 @@ public class Character : MonoBehaviour
         }
 
         // update animation if still in action. TODO :: CHANGE THIS 
-        if ((characterState.curAnimationType != currentActionInfo.associatedAnimType) && (characterState.actionState == ActionState.InAction)) {
+        if ((characterState.curAnimationType != currentActionInfo.associatedAnimType) && (characterState.inAction == true)) {
             startAnimation(currentActionInfo.associatedAnimType);
         }
     }
@@ -297,7 +343,7 @@ public class Character : MonoBehaviour
         updateCurrentAction();
 
         // start new action from queue if any. Comes last on update()
-        if (characterState.actionState == ActionState.Idle) {
+        if (characterState.inAction == false) {
             if (actionsQueue.Count != 0) {
                 currentActionInfo = actionsQueue[0];
                 startQueueAction(currentActionInfo);
