@@ -4,6 +4,7 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Time ("Time", Vector) = (0, 0, 0, 0)
+        _backgroundDarkness("backgroundDarkness", float) = 1.0
     }
     SubShader
     {
@@ -36,6 +37,8 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+            float _backgroundDarkness;
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -46,18 +49,12 @@
                 return o;
             }
 
-            float2 scaleTexCoords(float2 oldCoords, float2 scaleFactor) {
-            	float2 newCoords = oldCoords * scaleFactor;
-            	return newCoords;
-            }
-
             fixed4 frag (v2f i) : SV_Target
             {
-                // sample the texture
-
-                // float b = _Time * 10.0;
-                // float2 newUv = scaleTexCoords(i.uv, float2(20.0, 20.0)) - float2(0.0, b);
                 fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 col1 = fixed4(0.0, 0.0, 0.0, 1.0);
+
+                col = lerp(col, col1, _backgroundDarkness);
                 
                 return col;
             }

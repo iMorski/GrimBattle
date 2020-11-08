@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class playerController : MonoBehaviour
+public class playerController : Character
 {
     // CODE BELOW RELIES ON AnimationClip names being the same as actual animation names for 
     // .Play function in the animator
@@ -12,9 +11,6 @@ public class playerController : MonoBehaviour
     public AnimationClip Attack;
     public AnimationClip Death;
     public AnimationClip IsHit;
-
-    // [SerializeField] private GameObject gameO;
-    [SerializeField] private Game game;
     
     void Start()
     {
@@ -45,19 +41,7 @@ public class playerController : MonoBehaviour
         sceneInfo.animator = animatorObject;
         sceneInfo.gameObject = this.gameObject;
 
-        Character character = this.gameObject.AddComponent<Character>();
-        character.init(game, stats, sceneInfo, animationTypeToString);
-        character.setName("PLAYER");
-    }
-
-    // private int frameC = 0;
-    void Update()
-    {
-        // if (frameC == 100) {
-        //     // character.addActionSequence(Character.ActionSequenceType.HitEnemy);
-        //     character.addActionSequence(Character.ActionSequenceType.MoveToNextScene);
-        // }
-
-        // frameC++;
+        this.init(stats, sceneInfo, animationTypeToString);
+        this.setName("PLAYER");
     }
 }

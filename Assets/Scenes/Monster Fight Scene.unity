@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.39215687}
+  m_Color: {r: 0.4339623, g: 0.16580635, b: 0.16580635, a: 0.39215687}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -260,8 +260,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4287532744
+  m_fontColor: {r: 0.7830189, g: 0.5577163, b: 0.5577163, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1062,12 +1062,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3328fe0dacace95408083c59fbf440f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  game: {fileID: 709159824}
   Run: {fileID: 7400000, guid: 6ac973fa1f169c34096e9ea4588f538a, type: 2}
   Idle: {fileID: 7400000, guid: 449a46c0fdf71c54a83c56af640a7f8b, type: 2}
   Attack: {fileID: 7400000, guid: 916fbd7e72a979746bfd7c259d1c51cd, type: 2}
   Death: {fileID: 7400000, guid: f282d72598768e644a40c4207df54a0e, type: 2}
   IsHit: {fileID: 7400000, guid: 4a0e08ff7df0cdc4d92f8c9b4caf82fb, type: 2}
-  game: {fileID: 709159824}
 --- !u!1 &881597111
 GameObject:
   m_ObjectHideFlags: 0
@@ -1418,12 +1418,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 712d8319ce12e554dbe8652ad8737431, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  game: {fileID: 709159824}
   Run: {fileID: 7400000, guid: 6ac973fa1f169c34096e9ea4588f538a, type: 2}
   Idle: {fileID: 7400000, guid: 449a46c0fdf71c54a83c56af640a7f8b, type: 2}
   Attack: {fileID: 7400000, guid: 916fbd7e72a979746bfd7c259d1c51cd, type: 2}
   Death: {fileID: 7400000, guid: f282d72598768e644a40c4207df54a0e, type: 2}
   IsHit: {fileID: 7400000, guid: 4a0e08ff7df0cdc4d92f8c9b4caf82fb, type: 2}
-  game: {fileID: 709159824}
 --- !u!95 &1781792819
 Animator:
   serializedVersion: 3
@@ -1558,8 +1558,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4291477386
+  m_fontColor: {r: 0.5420078, g: 0.7489847, b: 0.7924528, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -1676,7 +1676,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.39215687}
+  m_Color: {r: 0.08940016, g: 0.2519664, b: 0.38679248, a: 0.39215687}
   m_RaycastTarget: 1
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -1743,6 +1743,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2046ceef17e40ae4a8047500f413c0e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  game: {fileID: 709159824}
 --- !u!1 &2112839718
 GameObject:
   m_ObjectHideFlags: 0

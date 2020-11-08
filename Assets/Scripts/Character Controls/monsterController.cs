@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class monsterController : MonoBehaviour
+public class monsterController : Character
 {
     // CODE BELOW RELIES ON AnimationClip names being the same as actual animation names for 
     // .Play function in the animator
@@ -12,7 +11,7 @@ public class monsterController : MonoBehaviour
     public AnimationClip Attack;
     public AnimationClip Death;
     public AnimationClip IsHit;
-    public Game game;
+    
     void Start()
     {
         Dictionary<Character.AnimationType, string> animationTypeToString = new Dictionary<Character.AnimationType, string>();
@@ -43,8 +42,7 @@ public class monsterController : MonoBehaviour
         sceneInfo.animator = animatorObject;
         sceneInfo.gameObject = this.gameObject;
 
-        Character character = this.gameObject.AddComponent<Character>();
-        character.init(game, stats, sceneInfo, animationTypeToString);
-        character.setName("MONSTER");
+        this.init(stats, sceneInfo, animationTypeToString);
+        this.setName("MONSTER");
     }
 }

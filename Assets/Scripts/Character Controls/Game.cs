@@ -103,12 +103,12 @@ public class Game : MonoBehaviour
     public void startClickAction(ClickType clickType) {
         switch(clickType) {
             case ClickType.Attack :
-                Debug.Log(" CLICKTYPE.ATTACK ACTION ");
+                // Debug.Log(" CLICKTYPE.ATTACK ACTION ");
                 startGameAction(GameAction.Attack);
 
                 break;
             case ClickType.EndTurn :
-                Debug.Log(" CLICKTYPE.ENDTURN ACTION ");
+                // Debug.Log(" CLICKTYPE.ENDTURN ACTION ");
                 startGameAction(GameAction.EndTurn);
 
                 break;

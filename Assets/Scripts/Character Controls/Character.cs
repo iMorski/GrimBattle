@@ -21,7 +21,7 @@ public class Character : MonoBehaviour
 
 	private enum ActionType {
 		Move,
-		Hit,
+		Attack,
         ReceiveDamage,
         Die
 	} 
@@ -106,20 +106,14 @@ public class Character : MonoBehaviour
         public GameObject gameObject;
     }
 
-    private struct GameInfo {
-        public Vector3 nextScenePosition;
-        public Character curEnemy;
-    }
-
     private Dictionary<AnimationType, string> animTypeToString;
 
     private CharacterState characterState;
     private SceneInfo sceneEntities;
-    private Game game;
+    [SerializeField] private Game game;
     private int gameID;
 
-    public void init(Game game, CharacterStats characterStats, SceneInfo sInfo, Dictionary<AnimationType, string> animBundle) {
-        this.game = game;
+    public void init(CharacterStats characterStats, SceneInfo sInfo, Dictionary<AnimationType, string> animBundle) {
         gameID = 0;
 
         characterState = new CharacterState();
@@ -142,7 +136,7 @@ public class Character : MonoBehaviour
         sceneEntities.animator = sInfo.animator;
         sceneEntities.gameObject = sInfo.gameObject;
         
-        characterState.viewPortPosition = this.game.getMainCamera().WorldToViewportPoint(sceneEntities.gameObject.transform.position);
+        characterState.viewPortPosition = game.getMainCamera().WorldToViewportPoint(sceneEntities.gameObject.transform.position);
         characterState.lastViewPortPosition = characterState.viewPortPosition;
 
         animTypeToString = animBundle;
@@ -170,7 +164,7 @@ public class Character : MonoBehaviour
     }
 
     private void startAnimation(AnimationType animationType) {
-        Debug.Log(animTypeToString[animationType]);
+        // Debug.Log(animTypeToString[animationType]);
 
         sceneEntities.animator.StopPlayback();
         sceneEntities.animator.Play(animTypeToString[animationType]);
@@ -180,7 +174,7 @@ public class Character : MonoBehaviour
     private void setViewPortPosition(Vector3 vPpos) {
         Vector3 worldPos = game.getMainCamera().ViewportToWorldPoint(vPpos);
         worldPos.z = vPpos.z;
-        Debug.Log("position set : " + worldPos.ToString());
+        // Debug.Log("position set : " + worldPos.ToString());
         sceneEntities.gameObject.transform.position = worldPos;
         characterState.viewPortPosition = vPpos;
     }
@@ -211,15 +205,14 @@ public class Character : MonoBehaviour
 
         if (actionInfo.actionType == ActionType.Move) {
             characterState.isMoving = true;
-        }
+        } else if (actionInfo.actionType == ActionType.Attack) {
+            startAnimation(AnimationType.Attack);
+        } 
     }
 
     private void addAttackAction() {
-        int damage = getAttackDamage();
-        // gameInfo.curEnemy.receiveDamage(damage);
-        game.getCurrentEnemy().receiveDamage(damage);
-
-        startAnimation(AnimationType.Attack);
+        ActionInfo attackInfo = new ActionInfo(ActionType.Attack);
+        attackInfo.damage = getAttackDamage();
     }
 
     private void updateNextScenePosition(float xCoord) {
@@ -254,14 +247,13 @@ public class Character : MonoBehaviour
     }
 
     public void receiveDamage(int damage) {
+        endAction();
+
         characterState.HP -= damage;
         startAnimation(AnimationType.IsHit);
-
-        if (characterState.HP <= 0) {
-            clearActionQueueAndDie();
-        }
     }
     private void clearActionQueueAndDie() {
+        endAction();
         actionsQueue.Clear();
         startAnimation(AnimationType.Death);
         characterState.alive = false;
@@ -294,6 +286,14 @@ public class Character : MonoBehaviour
 
     public void endAction() {
         Debug.Log(" END ACTION ");
+
+        if (currentActionInfo.actionType == ActionType.Attack) {
+            game.getCurrentEnemy().receiveDamage(currentActionInfo.damage);
+        }
+
+        if (characterState.HP <= 0) {
+            clearActionQueueAndDie();
+        }
 
     	characterState.inAction = false;
     	startAnimation(AnimationType.Idle);
