@@ -24,22 +24,28 @@ public class FB : MonoBehaviour
     public static string MyRoom = "";
     
     public static readonly Dictionary<string, string> MyData = new Dictionary<string, string>();
-    public static readonly Dictionary<Dictionary<string, string>, string> InRoomData = new Dictionary<Dictionary<string, string>, string>();
+    
+    public static double ConnectionStep;
+
+    public delegate void OnConnectionStepChange();
+    public static event OnConnectionStepChange ConnectionStepChange;
+
+    public delegate void OnRoomDataChange(Dictionary<Dictionary<string, string>, string> RoomData);
+    public static event OnRoomDataChange RoomDataChange;
 
     private static string Link;
     private static string PrettyTextPlayer;
     private static string PrettyTextRoom;
     private static int KeyNumberCount;
     private static int RoomCapacity;
-
-    public static double ConnectionStep;
-
-    public static bool OnRoomDataChange;
+    
     public static bool OnConnect;
 
     public static void Check()
     {
         ConnectionStep = 0.0;
+        ConnectionStepChange?.Invoke();
+        
         Debug.Log("Step: 0.0 - Checking resources");
         
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(Task => 
@@ -66,6 +72,8 @@ public class FB : MonoBehaviour
             BaseReference = FirebaseDatabase.DefaultInstance.RootReference;
             
             ConnectionStep = 1.0;
+            ConnectionStepChange?.Invoke();
+            
             Debug.Log("Step: 1.0 - Checking done");
         });
     }
@@ -112,8 +120,8 @@ public class FB : MonoBehaviour
     
     private static void Collect(DataSnapshot Room)
     {
-        InRoomData.Clear();
-
+        Dictionary<Dictionary<string, string>, string> RoomData = new Dictionary<Dictionary<string, string>, string>();   
+        
         foreach (DataSnapshot Player in Room.Children)
         {
             Dictionary<string, string> DataDictionary = new Dictionary<string, string>();
@@ -123,15 +131,17 @@ public class FB : MonoBehaviour
                 DataDictionary.Add(Data.Key, Data.Value.ToString());
             }
             
-            InRoomData.Add(DataDictionary, Player.Key);
+            RoomData.Add(DataDictionary, Player.Key);
         }
 
-        OnRoomDataChange = true;
+        RoomDataChange?.Invoke(RoomData);
     }
 
     public static void Connect()
     {
         ConnectionStep = 2.0;
+        ConnectionStepChange?.Invoke();
+        
         Debug.Log("Step: 2.0 - Connecting");
         
         BaseReference.GetValueAsync().ContinueWith(Task =>
@@ -162,6 +172,8 @@ public class FB : MonoBehaviour
             if (Lobby.Children.Count() + 1 >= RoomCapacity)
             {
                 ConnectionStep = 4.0;
+                ConnectionStepChange?.Invoke();
+                
                 Debug.Log("Step: 4.0 - Creating room");
                 
                 MyRoom = GenerateKey(PrettyTextRoom);
@@ -179,6 +191,8 @@ public class FB : MonoBehaviour
             else
             {
                 ConnectionStep = 3.0;
+                ConnectionStepChange?.Invoke();
+                
                 Debug.Log("Step: 3.0 - Joining lobby");
                 
                 BaseTracking = BaseReference.Child("Lobby").Child(MyName);
@@ -192,6 +206,8 @@ public class FB : MonoBehaviour
         if (!(ConnectionStep != 3.1) && !(Argument.Snapshot.Value != null))
         {
             ConnectionStep = 3.2;
+            ConnectionStepChange?.Invoke();
+            
             Debug.Log("Step: 3.2 - Receiving invitation");
             
             BaseTracking.ValueChanged -= OnLobbyChange;
@@ -206,6 +222,8 @@ public class FB : MonoBehaviour
             }
 
             ConnectionStep = 3.1;
+            ConnectionStepChange?.Invoke();
+            
             Debug.Log("Step: 3.1 - Waiting in lobby");
         }
     }
@@ -239,6 +257,8 @@ public class FB : MonoBehaviour
         }
         
         ConnectionStep = 3.3;
+        ConnectionStepChange?.Invoke();
+        
         Debug.Log("Step: 3.3 - Checking room list");
         
         DataSnapshot ActiveRoom = Argument.Snapshot;
@@ -247,6 +267,8 @@ public class FB : MonoBehaviour
         if (MyRoom != "")
         {
             ConnectionStep = 3.4;
+            ConnectionStepChange?.Invoke();
+            
             Debug.Log($"Step: 3.4 - {MyRoom}");
             
             BaseTracking.ValueChanged -= OnActiveRoomChange;
@@ -264,11 +286,15 @@ public class FB : MonoBehaviour
             if (ConnectionStep < 4 && ConnectionStep != 3.5)
             {
                 ConnectionStep = 3.5;
+                ConnectionStepChange?.Invoke();
+                
                 Debug.Log("Step: 3.5 - Waiting in room");
             }
             else if (ConnectionStep < 5 && ConnectionStep != 4.3)
             {
                 ConnectionStep = 4.3;
+                ConnectionStepChange?.Invoke();
+                
                 Debug.Log("Step: 4.3 - Waiting in room");
             }
             
@@ -288,12 +314,16 @@ public class FB : MonoBehaviour
                 Collect(Room);
 
                 ConnectionStep = 5.0;
+                ConnectionStepChange?.Invoke();
+                
                 Debug.Log("Step: 5.0 - Ready");
             }
         }
         else
         {
             ConnectionStep = 4.1;
+            ConnectionStepChange?.Invoke();
+            
             Debug.Log("Step: 4.1 - Checking lobby");
             
             BaseReference.Child("Lobby").GetValueAsync().ContinueWith(Task =>
@@ -317,6 +347,8 @@ public class FB : MonoBehaviour
                     }
                 
                     ConnectionStep = 4.2;
+                    ConnectionStepChange?.Invoke();
+                    
                     Debug.Log($"Step: 4.2 - Inviting {LastName}");
                     
                     BaseReference.Child("Lobby").Child(LastName).SetValueAsync(null);
@@ -325,15 +357,19 @@ public class FB : MonoBehaviour
         }
     }
 
-    public static void Write(string Player, Dictionary<string, string> DataDictionary)
+    public static void SetValue()
     {
-        foreach (KeyValuePair<string, string> Data in DataDictionary)
+        foreach (KeyValuePair<string, string> Data in MyData)
         {
-            BaseReference.Child("ActivePlayer").Child(Player).Child(Data.Key).SetValueAsync(Data.Value);
+            BaseReference.Child("ActivePlayer").Child(MyName).Child(Data.Key).SetValueAsync(Data.Value);
 
-            if (MyRoom != "")
+            if (!(ConnectionStep != 3.1))
             {
-                BaseReference.Child("ActiveRoom").Child(MyRoom).Child(Player).Child(Data.Key).SetValueAsync(Data.Value);
+                BaseReference.Child("Lobby").Child(MyName).Child(Data.Key).SetValueAsync(Data.Value);
+            }
+            else if (MyRoom != "")
+            {
+                BaseReference.Child("ActiveRoom").Child(MyRoom).Child(MyName).Child(Data.Key).SetValueAsync(Data.Value);
             }
         }
     }
@@ -352,8 +388,6 @@ public class FB : MonoBehaviour
                 BaseReference.Child("ActiveRoom").Child(MyRoom).Child(MyName).SetValueAsync(null);
                 
                 MyRoom = "";
-                
-                InRoomData.Clear();
             }
             else
             {
