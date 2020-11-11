@@ -24,13 +24,14 @@ public class FB : MonoBehaviour
     public static string MyRoom = "";
     
     public static readonly Dictionary<string, string> MyData = new Dictionary<string, string>();
+    public static readonly Dictionary<Dictionary<string, string>, string> RoomData = new Dictionary<Dictionary<string, string>, string>();
     
     public static double ConnectionStep;
 
     public delegate void OnConnectionStepChange();
     public static event OnConnectionStepChange ConnectionStepChange;
 
-    public delegate void OnRoomDataChange(Dictionary<Dictionary<string, string>, string> RoomData);
+    public delegate void OnRoomDataChange();
     public static event OnRoomDataChange RoomDataChange;
 
     private static string Link;
@@ -120,21 +121,21 @@ public class FB : MonoBehaviour
     
     private static void Collect(DataSnapshot Room)
     {
-        Dictionary<Dictionary<string, string>, string> RoomData = new Dictionary<Dictionary<string, string>, string>();   
+        RoomData.Clear();
         
         foreach (DataSnapshot Player in Room.Children)
         {
-            Dictionary<string, string> DataDictionary = new Dictionary<string, string>();
+            Dictionary<string, string> Dictionary = new Dictionary<string, string>();
                 
             foreach (DataSnapshot Data in Player.Children)
             {
-                DataDictionary.Add(Data.Key, Data.Value.ToString());
+                Dictionary.Add(Data.Key, Data.Value.ToString());
             }
             
-            RoomData.Add(DataDictionary, Player.Key);
+            RoomData.Add(Dictionary, Player.Key);
         }
 
-        RoomDataChange?.Invoke(RoomData);
+        RoomDataChange?.Invoke();
     }
 
     public static void Connect()
@@ -404,6 +405,9 @@ public class FB : MonoBehaviour
 
             MyName = "";
         }
+        
+        MyData.Clear();
+        RoomData.Clear();
 
         ConnectionStep = 0;
     }
