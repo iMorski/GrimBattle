@@ -35,37 +35,37 @@ public class Character : MonoBehaviour
         public ActionInfo(ActionType aType) {
             actionType = aType;
             damage = 0;
-            destination = new Vector3(0.0f, 0.0f);
-            associatedAnimType = AnimationType.Run;
+            destination = new Vector3(0.0f, 0.0f, 0.0f);
+            moveType = MoveType.ToEnemy;
         }
 
-        public ActionInfo(ActionType aType, int dam, Vector3 dest) {
+        public ActionInfo(ActionType aType, int dam, Vector3 dest, MoveType movType) {
             actionType = aType;
             damage = dam;
             destination = dest;
-            associatedAnimType = AnimationType.Run;
+            moveType = movType;
         }
 
         public ActionType actionType;
         public int damage;
         public Vector3 destination;
-        public AnimationType associatedAnimType;
+        public MoveType moveType;
     };
 
     private List<ActionInfo> actionsQueue = new List<ActionInfo>();
-    private ActionInfo currentActionInfo;
+    private ActionInfo currentActionInfo = new ActionInfo(); 
 
     public struct CharacterStats {
         public CharacterStats(int health) {
             HP = health;
-            damage = 100;
+            damage = 10;
             movSpeed = 1.0f;
             critChance = 0.1f;
             critMult = 2.1f;
-            team = 0;
+            team = Game.teamType.Players;
         }
 
-        public CharacterStats(int health, int dmg, float speed, float cChance, float cMult, int t) {
+        public CharacterStats(int health, int dmg, float speed, float cChance, float cMult, Game.teamType t) {
             HP = health;
             damage = dmg;
             movSpeed = speed;
@@ -79,7 +79,7 @@ public class Character : MonoBehaviour
         public float movSpeed;
         public float critChance;
         public float critMult;
-        public int team;
+        public Game.teamType team;
     }
 
     private struct CharacterState {
@@ -98,23 +98,49 @@ public class Character : MonoBehaviour
         public Vector3 viewPortPosition;
         public Vector3 lastViewPortPosition; // position before last moveAction
         public  AnimationType curAnimationType;
-        public int team;
+        public Game.teamType team;
     }
 
     public struct SceneInfo {
         public Animator animator;
         public GameObject gameObject;
+        public Camera gameCamera;
     }
 
-    private Dictionary<AnimationType, string> animTypeToString;
+    private Dictionary<AnimationType, string> animationTypeToString = new Dictionary<AnimationType, string>();
 
     private CharacterState characterState;
     private SceneInfo sceneEntities;
     [SerializeField] private Game game;
-    private int gameID;
+    public AnimationClip Run;
+    public AnimationClip Idle;
+    public AnimationClip Attack;
+    public AnimationClip Death;
+    public AnimationClip IsHit;
 
-    public void init(CharacterStats characterStats, SceneInfo sInfo, Dictionary<AnimationType, string> animBundle) {
-        gameID = 0;
+    public int attackPixelOffset; // should also be based on team facing right/left ...
+    private int teamID;
+
+    public void init(CharacterStats characterStats) {
+        teamID = 0;
+
+        // REMOVE " (UnityEngine.AnimationClip)" from end of string(28 characters). EXTREMELY UNRELIABLE
+        string idle = Idle.ToString();
+        idle = idle.Remove(idle.Length - 28);
+        string run = Run.ToString();
+        run = run.Remove(run.Length - 28);
+        string isHit = IsHit.ToString();
+        isHit = isHit.Remove(isHit.Length - 28);
+        string attack = Attack.ToString();
+        attack = attack.Remove(attack.Length - 28);
+        string death = Death.ToString();
+        death = death.Remove(death.Length - 28);
+
+        animationTypeToString.Add(AnimationType.Idle, idle);
+        animationTypeToString.Add(AnimationType.Run, run);
+        animationTypeToString.Add(AnimationType.IsHit, isHit);
+        animationTypeToString.Add(AnimationType.Death, death);
+        animationTypeToString.Add(AnimationType.Attack, attack);
 
         characterState = new CharacterState();
         characterState.name = "NoName";
@@ -133,13 +159,12 @@ public class Character : MonoBehaviour
         characterState.team = characterStats.team;
 
         sceneEntities = new SceneInfo();
-        sceneEntities.animator = sInfo.animator;
-        sceneEntities.gameObject = sInfo.gameObject;
+        sceneEntities.animator = this.gameObject.GetComponent<Animator>();
+        sceneEntities.gameObject = this.gameObject;
+        sceneEntities.gameCamera = game.getMainCamera();
         
-        characterState.viewPortPosition = game.getMainCamera().WorldToViewportPoint(sceneEntities.gameObject.transform.position);
+        characterState.viewPortPosition = sceneEntities.gameCamera.WorldToViewportPoint(sceneEntities.gameObject.transform.position);
         characterState.lastViewPortPosition = characterState.viewPortPosition;
-
-        animTypeToString = animBundle;
 
         setViewPortPosition(characterState.viewPortPosition);
         startAnimation(AnimationType.Idle);
@@ -155,25 +180,25 @@ public class Character : MonoBehaviour
         characterState.name = Name;
     }
 
-    public int getGameID() {
-        return gameID;
+    public int getTeamID() {
+        return teamID;
     }
 
-    public void setGameID(int ID) {
-        gameID = ID;
+    public void setTeamID(int ID) {
+        teamID = ID;
     }
 
     private void startAnimation(AnimationType animationType) {
-        // Debug.Log(animTypeToString[animationType]);
+        // print( "STARTED ANIMATION : " + animationTypeToString[animationType]);
 
         sceneEntities.animator.StopPlayback();
-        sceneEntities.animator.Play(animTypeToString[animationType]);
+        sceneEntities.animator.Play(animationTypeToString[animationType]);
         characterState.curAnimationType = animationType;
     }
 
     private void setViewPortPosition(Vector3 vPpos) {
-        Vector3 worldPos = game.getMainCamera().ViewportToWorldPoint(vPpos);
-        worldPos.z = vPpos.z;
+        Vector3 worldPos = sceneEntities.gameCamera.ViewportToWorldPoint(vPpos);
+        // worldPos.z = vPpos.z;
         // Debug.Log("position set : " + worldPos.ToString());
         sceneEntities.gameObject.transform.position = worldPos;
         characterState.viewPortPosition = vPpos;
@@ -200,26 +225,54 @@ public class Character : MonoBehaviour
         return characterState.inAction;
     }
 
-    private void startQueueAction(ActionInfo actionInfo) {
-        characterState.inAction = true;
+    private Vector3 getCorrectPositionToAttack() {
+        Vector3 position = game.getCurrentEnemy().getViewPortPosition(); 
+        Vector3 pixelPosition = sceneEntities.gameCamera.ViewportToScreenPoint(position);
+        pixelPosition.x += attackPixelOffset * (-1.0f);
+        position = sceneEntities.gameCamera.ScreenToViewportPoint(pixelPosition);
 
-        if (actionInfo.actionType == ActionType.Move) {
-            characterState.isMoving = true;
-        } else if (actionInfo.actionType == ActionType.Attack) {
-            startAnimation(AnimationType.Attack);
-        } 
+        return position;
     }
 
-    private void addAttackAction() {
-        ActionInfo attackInfo = new ActionInfo(ActionType.Attack);
-        attackInfo.damage = getAttackDamage();
+    private void startQueueAction(ActionInfo actionInfo) {
+        currentActionInfo = actionInfo;
+        characterState.inAction = true;
+
+        if (currentActionInfo.actionType == ActionType.Move) {
+            characterState.isMoving = true;
+
+            if (currentActionInfo.moveType == MoveType.ToEnemy) {
+                currentActionInfo.destination = getCorrectPositionToAttack();
+            } else if(currentActionInfo.moveType == MoveType.ToNextScene) { 
+                currentActionInfo.destination = game.getNextScenePositionForCharacterID(teamID); 
+            } else if(currentActionInfo.moveType == MoveType.FromEnemy) {
+                currentActionInfo.destination = characterState.lastViewPortPosition;
+            } else {
+                Debug.LogError("Incorrect MoveType in startQueueAction !");
+            }
+
+            // print ("DESTINATION CHANGED ! d : " + currentActionInfo.destination);
+
+            characterState.lastViewPortPosition = characterState.viewPortPosition;
+            Vector3 toDestination = currentActionInfo.destination - characterState.viewPortPosition;
+            // print("TO DEST : " + toDestination.ToString());
+            // toDestination.z = 0.0f;
+            characterState.moveDirection = toDestination.normalized;
+        } else if (currentActionInfo.actionType == ActionType.Attack) {
+            startAnimation(getAssociatedAnimationType(currentActionInfo.actionType));
+        } else if (currentActionInfo.actionType == ActionType.ReceiveDamage) {
+
+            print("ISHIT ANIM STARTED");
+            characterState.HP -= currentActionInfo.damage;
+            startAnimation(AnimationType.IsHit);
+        } 
     }
 
     private void updateNextScenePosition(float xCoord) {
         // gameInfo.nextScenePosition = getGameController().getNextScenePositionForPlayer(playerId);
     }
 
-    public int getTeam() {
+    public Game.teamType getTeam() {
         return characterState.team;
     }
 
@@ -227,36 +280,64 @@ public class Character : MonoBehaviour
         return characterState.alive;
     }
 
+    private void addAttackAction() {
+        ActionInfo attackInfo = new ActionInfo(ActionType.Attack);
+        attackInfo.damage = getAttackDamage();
+
+        actionsQueue.Add(attackInfo);
+    }
+
     private void addMoveAction(MoveType moveType) {
         ActionInfo movementInfo = new ActionInfo(ActionType.Move);
-        if (moveType == MoveType.ToEnemy) {
-            movementInfo.destination = game.getCurrentEnemy().getViewPortPosition(); 
-        } else if(moveType == MoveType.ToNextScene) { 
-            movementInfo.destination = game.getNextScenePositionForCharacterID(gameID); 
-        } else if(moveType == MoveType.FromEnemy) {
-            movementInfo.destination = characterState.lastViewPortPosition;
-        } else {
-            Debug.LogError("Incorrect MoveType in addMoveAction !");
-        }
+        movementInfo.moveType = moveType;
 
-        characterState.lastViewPortPosition = characterState.viewPortPosition;
-        Vector3 toDestination = movementInfo.destination - characterState.viewPortPosition;
-        characterState.moveDirection = toDestination.normalized;
+        Debug.Log("Added move action " + moveType.ToString());
+        Debug.Log("Destination : " + movementInfo.destination.ToString());
+        Debug.Log("My position : " + characterState.viewPortPosition.ToString());
 
         actionsQueue.Add(movementInfo);
     }
 
-    public void receiveDamage(int damage) {
-        endAction();
+    private void addReceiveDamageAction(int damage) {
+        ActionInfo receiveDamageInfo = new ActionInfo(ActionType.ReceiveDamage);
+        receiveDamageInfo.damage = damage;
 
-        characterState.HP -= damage;
-        startAnimation(AnimationType.IsHit);
+        actionsQueue.Add(receiveDamageInfo);
+    }
+
+    private AnimationType getAssociatedAnimationType(ActionType actionType) {
+        switch(actionType) {
+            case ActionType.Attack :
+                return AnimationType.Attack;
+            case ActionType.Die :
+                return AnimationType.Death;
+            case ActionType.ReceiveDamage :
+                return AnimationType.IsHit;
+            case ActionType.Move :
+                return AnimationType.Run;
+            default : 
+                Debug.LogError("Unsupported actionType in AnimationType");
+                break;
+        }
+
+        return AnimationType.Attack;
+    }
+
+    public void receiveDamage(int damage) {
+        addReceiveDamageAction(damage);
     }
     private void clearActionQueueAndDie() {
-        endAction();
         actionsQueue.Clear();
         startAnimation(AnimationType.Death);
         characterState.alive = false;
+    }
+
+    public void dealDamage() {
+        int damage = currentActionInfo.damage;
+
+        game.getCurrentEnemy().receiveDamage(damage);
+
+        // print("DEALT " + damage.ToString() + " DAMAGE !!!");
     }
 
     public void addActionSequence(ActionSequenceType actionSequenceType) {
@@ -285,15 +366,7 @@ public class Character : MonoBehaviour
     }
 
     public void endAction() {
-        Debug.Log(" END ACTION ");
-
-        if (currentActionInfo.actionType == ActionType.Attack) {
-            game.getCurrentEnemy().receiveDamage(currentActionInfo.damage);
-        }
-
-        if (characterState.HP <= 0) {
-            clearActionQueueAndDie();
-        }
+        Debug.Log(" END ACTION " + currentActionInfo.actionType.ToString());
 
     	characterState.inAction = false;
     	startAnimation(AnimationType.Idle);
@@ -301,6 +374,10 @@ public class Character : MonoBehaviour
 
         if (actionsQueue.Count != 0) {
             actionsQueue.RemoveAt(0);
+        }
+
+        if (characterState.HP <= 0) {
+            clearActionQueueAndDie();
         }
     }
 
@@ -313,27 +390,38 @@ public class Character : MonoBehaviour
             return;
         } 
 
+        // Debug.Log(actionsQueue[0].actionType.ToString());
+
          // update position
         if (characterState.isMoving) {
+            // Debug.Log("MOVING");
             // this.gameObject.transform.position = this.gameObject.transform.position;
             Vector3 left = currentActionInfo.destination - characterState.viewPortPosition;
+            // print ("position : " + characterState.viewPortPosition.ToString());
             float distanceLeft = left.magnitude;
             float distanceToTravel = Time.deltaTime * characterState.speed;
-            
+            // print("LEFT : " + distanceLeft.ToString());
+            // print("VECTOR LEFT : " + left.ToString());
             if (distanceToTravel > distanceLeft) {
                 setViewPortPosition(currentActionInfo.destination);
                 endAction();
             } else {
                 setViewPortPosition(characterState.viewPortPosition + characterState.moveDirection * distanceToTravel);
             }
+
+            // Debug.Log(distanceToTravel.ToString());
+            // Debug.Log(characterState.moveDirection.ToString());
+
         }
 
         // update animation if still in action. TODO :: CHANGE THIS 
-        if ((characterState.curAnimationType != currentActionInfo.associatedAnimType) && (characterState.inAction == true)) {
-            startAnimation(currentActionInfo.associatedAnimType);
+        AnimationType neededCurAnimationType = getAssociatedAnimationType(currentActionInfo.actionType);
+        if ((characterState.curAnimationType != neededCurAnimationType) && (characterState.inAction == true)) {
+            startAnimation(neededCurAnimationType);
         }
     }
 
+    private int actionsCount = 0;
     void Update()
     {
         if (characterState.alive == false) {
@@ -344,9 +432,12 @@ public class Character : MonoBehaviour
 
         // start new action from queue if any. Comes last on update()
         if (characterState.inAction == false) {
+
+            // Debug.Log("INACTION FALSE");
             if (actionsQueue.Count != 0) {
-                currentActionInfo = actionsQueue[0];
-                startQueueAction(currentActionInfo);
+                actionsCount++;
+                Debug.Log(actionsCount.ToString());
+                startQueueAction(actionsQueue[0]);
             }
         }
     }
