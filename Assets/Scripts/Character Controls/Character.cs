@@ -272,7 +272,7 @@ public class Character : MonoBehaviour
         // gameInfo.nextScenePosition = getGameController().getNextScenePositionForPlayer(playerId);
     }
 
-    public Game.teamType getTeam() {
+    public Game.teamType getTeamType() {
         return characterState.team;
     }
 
@@ -374,6 +374,10 @@ public class Character : MonoBehaviour
 
         if (actionsQueue.Count != 0) {
             actionsQueue.RemoveAt(0);
+        }
+
+        if (actionsQueue.Count == 0) {
+            game.endedAllActions(this);
         }
 
         if (characterState.HP <= 0) {

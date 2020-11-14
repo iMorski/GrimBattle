@@ -27,6 +27,7 @@ public class Game : MonoBehaviour
     private int currentCharacterID = 0;
     private int currentEnemyID = 0;
     private Game.teamType currentTeamType = Game.teamType.Players;
+    private bool waitingToSwitchTurns = false;
 
     public Dictionary<ButtonType, GameAction> buttonTypeToGameAction = new Dictionary<ButtonType, GameAction>(){
         {ButtonType.Attack, GameAction.Attack},
@@ -50,13 +51,13 @@ public class Game : MonoBehaviour
     }
 
     public void registerCharacter(Character character) {
-        Debug.Log(character.getTeam().ToString());
+        Debug.Log(character.getTeamType().ToString());
 
-        if (!characterListsByTeamType.ContainsKey(character.getTeam())) {
-            characterListsByTeamType.Add(character.getTeam(), new List<Character>());
+        if (!characterListsByTeamType.ContainsKey(character.getTeamType())) {
+            characterListsByTeamType.Add(character.getTeamType(), new List<Character>());
         }
 
-        List<Character> teamList = characterListsByTeamType[character.getTeam()];
+        List<Character> teamList = characterListsByTeamType[character.getTeamType()];
         teamList.Add(character);
         character.setTeamID(teamList.Count - 1);
 
@@ -68,9 +69,9 @@ public class Game : MonoBehaviour
         buttons.Add(button);
     }
 
-    private void enableButtons() {
+    private void enableButtons(bool enable) {
         foreach(UIButtonMosterScene button in buttons) {
-            button.setEnabled(true);
+            button.setEnabled(enable);
         }
     }
 
@@ -84,7 +85,7 @@ public class Game : MonoBehaviour
         currentEnemyID = -1;
         currentTeamType = Game.teamType.Players; // current team Key
 
-        enableButtons();
+        enableButtons(true);
     }
 
     void Awake()
@@ -151,7 +152,18 @@ public class Game : MonoBehaviour
         return getEnemyTeam()[currentEnemyID];
     }
 
+
+    private void switchTurnsIfPossible() {
+        if (getCurrentCharacter().isInAction()) {
+            waitingToSwitchTurns = true;
+            enableButtons(false);
+        } else {
+            switchTurns();
+        }
+    }
+
     private void switchTurns() {
+        
         if (getCurrentTeam().Count <= (currentCharacterID + 1)) {
             switchTeams();
 
@@ -162,12 +174,12 @@ public class Game : MonoBehaviour
         }
         
         updateCurrentEnemy();
-        enableButtons();
+        enableButtons(true);
     }
 
     private void startGameAction(GameAction actionType) {
-        if (getCurrentCharacter().isInAction()) {
-            Debug.Log(" Character Still In Action. Please wait for it to finish before acting again !");
+        if (waitingToSwitchTurns) {
+            Debug.Log("WAITING FOR TURN SWITCH, CAN'T USE GAMEACTION NOW");
             return;
         }
 
@@ -178,7 +190,7 @@ public class Game : MonoBehaviour
                 getCurrentCharacter().addActionSequence(Character.ActionSequenceType.HitEnemy);
                 break;
             case GameAction.EndTurn :
-                switchTurns();
+                switchTurnsIfPossible();
                 break;
             case GameAction.MoveToNextScreen :
                 getCurrentCharacter().addActionSequence(Character.ActionSequenceType.MoveToNextScene);
@@ -188,12 +200,20 @@ public class Game : MonoBehaviour
         requestedActionsOfType[actionType]++;
     }
 
+    public void endedAllActions(Character character) {
+        if (character.getTeamType() == currentTeamType && character.getTeamID() == getCurrentCharacter().getTeamID()) {
+            waitingToSwitchTurns = false;
+            switchTurns();
+        }
+    }
+
     public void startClickAction(ButtonType buttonType) {
         startGameAction(buttonTypeToGameAction[buttonType]);
     }
 
     public bool canPerformAction(GameAction actionType) {
         bool can = true;
+        can &= (!waitingToSwitchTurns);
 
         if (actionNumRestriction[actionType] == -1) {
             // do nothing, leave can true; -1 == no action number restriction
