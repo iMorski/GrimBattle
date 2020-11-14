@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
-    private float DEFAULT_LERP_FACTOR = 0.05f;
+    private float DEFAULT_LERP_FACTOR = 0.02f;
     private float CHARACTER_EPS = 0.001f;
+    private float DAMAGE_STICKY_DURATION_HPBAR = 0.1f;
 	public enum AnimationType {
 		Idle,
 		Run,
@@ -128,6 +129,7 @@ public class Character : MonoBehaviour
     private int teamID;
 
     [SerializeField] private SpriteRenderer hpBar;
+    private float damageStickyStartTime = -1.0f;
 
     public void init(CharacterStats characterStats) {
         teamID = 0;
@@ -155,6 +157,7 @@ public class Character : MonoBehaviour
         characterState.maxHP = characterStats.HP;
         characterState.HP = characterStats.HP;
         characterState.trailingHP = (float)characterStats.HP;
+        damageStickyStartTime = -1.0f;
         updateHPBarValues();
         characterState.speed = characterStats.movSpeed;
         characterState.damage = characterStats.damage;
@@ -284,6 +287,7 @@ public class Character : MonoBehaviour
 
     private void updateHP(int value) {
         characterState.HP += value;
+        damageStickyStartTime = Time.realtimeSinceStartup;
         updateHPBarValues();
     }
 
@@ -455,6 +459,15 @@ public class Character : MonoBehaviour
     }
 
     private void updateTrailingHP() {
+        if (damageStickyStartTime > 0.0f) {
+            float timeElapsed = Time.realtimeSinceStartup;
+            if ((timeElapsed - damageStickyStartTime) < DAMAGE_STICKY_DURATION_HPBAR) {
+                return;
+            } else {
+                damageStickyStartTime = -1.0f;
+            }
+        }
+        
         if ((int)characterState.trailingHP == characterState.HP) {
             return;
         }
@@ -505,7 +518,6 @@ public class Character : MonoBehaviour
     private int actionsCount = 0;
     void Update()
     {
-
         updateTrailingProperties();
 
         if (characterState.alive == false) {
