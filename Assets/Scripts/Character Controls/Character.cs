@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Character : MonoBehaviour
 {
+    private float DEFAULT_LERP_FACTOR = 0.05f;
+    private float CHARACTER_EPS = 0.001f;
 	public enum AnimationType {
 		Idle,
 		Run,
@@ -58,7 +60,7 @@ public class Character : MonoBehaviour
     public struct CharacterStats {
         public CharacterStats(int health) {
             HP = health;
-            damage = 50;
+            damage = 35;
             movSpeed = 0.5f;
             critChance = 0.1f;
             critMult = 2.1f;
@@ -84,7 +86,9 @@ public class Character : MonoBehaviour
 
     private struct CharacterState {
         public string name;
+        public int maxHP;
         public int HP;
+        public float trailingHP;
         public int damage;
         public float damageBuff;
         public float critChance;
@@ -99,6 +103,8 @@ public class Character : MonoBehaviour
         public Vector3 lastViewPortPosition; // position before last moveAction
         public  AnimationType curAnimationType;
         public Game.teamType team;
+        public float targetAlpha;
+        public float trailingAlpha;
     }
 
     public struct SceneInfo {
@@ -120,6 +126,8 @@ public class Character : MonoBehaviour
 
     public int attackPixelOffset; // should also be based on team facing right/left ...
     private int teamID;
+
+    [SerializeField] private SpriteRenderer hpBar;
 
     public void init(CharacterStats characterStats) {
         teamID = 0;
@@ -144,7 +152,10 @@ public class Character : MonoBehaviour
 
         characterState = new CharacterState();
         characterState.name = "NoName";
+        characterState.maxHP = characterStats.HP;
         characterState.HP = characterStats.HP;
+        characterState.trailingHP = (float)characterStats.HP;
+        updateHPBarValues();
         characterState.speed = characterStats.movSpeed;
         characterState.damage = characterStats.damage;
         characterState.damageBuff = 1.0f;
@@ -153,6 +164,9 @@ public class Character : MonoBehaviour
     	characterState.curAnimationType = AnimationType.Idle;
         characterState.isMoving = false;
         characterState.alive = true;
+        characterState.targetAlpha = 1.0f;
+        characterState.trailingAlpha = 1.0f;
+        setCharacterAlpha(1.0f);
         // characterState.actionState = ActionState.Idle;
         characterState.inAction = false;
         characterState.moveDirection = new Vector3(1.0f, 0.0f, 0.0f);
@@ -263,9 +277,14 @@ public class Character : MonoBehaviour
         } else if (currentActionInfo.actionType == ActionType.ReceiveDamage) {
 
             // print("ISHIT ANIM STARTED");
-            characterState.HP -= currentActionInfo.damage;
+            updateHP(-currentActionInfo.damage);
             startAnimation(AnimationType.IsHit);
         } 
+    }
+
+    private void updateHP(int value) {
+        characterState.HP += value;
+        updateHPBarValues();
     }
 
     private void updateNextScenePosition(float xCoord) {
@@ -381,6 +400,8 @@ public class Character : MonoBehaviour
         }
 
         if (characterState.HP <= 0) {
+            // make HP equal 0
+            updateHP(-characterState.HP);
             clearActionQueueAndDie();
         }
     }
@@ -425,9 +446,68 @@ public class Character : MonoBehaviour
         }
     }
 
+    private void updateHPBarValues() {
+        float curHpPercentage = (float)characterState.HP/(float)characterState.maxHP;
+        float lastHpPercentage = characterState.trailingHP/(float)characterState.maxHP;
+
+        hpBar.material.SetFloat("_hpPercentage", curHpPercentage);
+        hpBar.material.SetFloat("_lastHpPercentage", lastHpPercentage);
+    }
+
+    private void updateTrailingHP() {
+        if ((int)characterState.trailingHP == characterState.HP) {
+            return;
+        }
+
+        characterState.trailingHP = Mathf.Lerp(characterState.trailingHP, characterState.HP, DEFAULT_LERP_FACTOR);
+        if ((int)characterState.trailingHP == characterState.HP) {
+            characterState.trailingHP = (float)characterState.HP;
+        }
+        updateHPBarValues();
+    }
+
+    public void updateTargetAlphaOnDeath() {
+        characterState.targetAlpha = 0.0f;
+    }
+
+    private void updateTrailingAlpha() {
+        if (Mathf.Abs(characterState.trailingAlpha - characterState.targetAlpha) < CHARACTER_EPS) {
+            return;
+        }
+
+        // print("Updating alpha");
+
+        Color curColor = this.gameObject.GetComponent<SpriteRenderer>().material.color;
+        curColor.a = Mathf.Lerp(curColor.a, characterState.targetAlpha, DEFAULT_LERP_FACTOR);
+        
+        print ("ALPHA : " + curColor.a.ToString());
+        if (Mathf.Abs( curColor.a - characterState.targetAlpha) < CHARACTER_EPS) {
+            curColor.a = characterState.targetAlpha;
+
+        }
+        characterState.trailingAlpha = curColor.a;
+
+        this.gameObject.GetComponent<SpriteRenderer>().material.color = curColor;
+        hpBar.material.SetFloat("_alpha", curColor.a);
+    }
+
+    private void setCharacterAlpha(float a) {
+        Color curColor = this.gameObject.GetComponent<SpriteRenderer>().material.color;
+        curColor.a = a;
+        this.gameObject.GetComponent<SpriteRenderer>().material.color = curColor;
+        hpBar.material.SetFloat("_alpha", a);
+    }
+
+    private void updateTrailingProperties() {
+        updateTrailingHP();
+        updateTrailingAlpha();
+    }
     private int actionsCount = 0;
     void Update()
     {
+
+        updateTrailingProperties();
+
         if (characterState.alive == false) {
             return;
         }
