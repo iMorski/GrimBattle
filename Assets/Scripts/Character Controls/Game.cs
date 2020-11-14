@@ -201,6 +201,10 @@ public class Game : MonoBehaviour
     }
 
     public void endedAllActions(Character character) {
+        if (!waitingToSwitchTurns) {
+            return;
+        }
+        
         if (character.getTeamType() == currentTeamType && character.getTeamID() == getCurrentCharacter().getTeamID()) {
             waitingToSwitchTurns = false;
             switchTurns();
