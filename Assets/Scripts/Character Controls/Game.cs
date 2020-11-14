@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-    public enum ClickType {
+    public enum ButtonType {
         Attack,
         EndTurn
     }
@@ -22,12 +22,28 @@ public class Game : MonoBehaviour
     [SerializeField] private Camera gameCamera;
     private List<Character> characterList = new List<Character>();
 
+    private List<UIButtonMosterScene> buttons = new List<UIButtonMosterScene>();
     private Dictionary<Game.teamType, List<Character>> characterListsByTeamType = new Dictionary<Game.teamType, List<Character>>();
     private int currentCharacterID = 0;
     private int currentEnemyID = 0;
     private Game.teamType currentTeamType = Game.teamType.Players;
-    private List<int> availableEnemyIDs = new List<int>();
 
+    public Dictionary<ButtonType, GameAction> buttonTypeToGameAction = new Dictionary<ButtonType, GameAction>(){
+        {ButtonType.Attack, GameAction.Attack},
+        {ButtonType.EndTurn, GameAction.EndTurn}
+    };
+
+    public Dictionary<GameAction, int> requestedActionsOfType = new Dictionary<GameAction, int>(){
+        {GameAction.Attack, 0},
+        {GameAction.EndTurn, 0},
+        {GameAction.MoveToNextScreen, 0}
+    };
+
+    public Dictionary<GameAction, int> actionNumRestriction = new Dictionary<GameAction, int>(){
+        {GameAction.Attack, 1},
+        {GameAction.EndTurn, -1},
+        {GameAction.MoveToNextScreen, -1}
+    };
 
     public Camera getMainCamera() {
         return gameCamera;
@@ -48,6 +64,16 @@ public class Game : MonoBehaviour
         switchTurns();
     }
 
+    public void registerButton(UIButtonMosterScene button) {
+        buttons.Add(button);
+    }
+
+    private void enableButtons() {
+        foreach(UIButtonMosterScene button in buttons) {
+            button.setEnabled(true);
+        }
+    }
+
     public Vector3 getNextScenePositionForCharacterID(int characterID) {
         // TODO
         return new Vector3(0.0f, 0.0f, 0.0f);
@@ -57,34 +83,16 @@ public class Game : MonoBehaviour
         currentCharacterID = -1;
         currentEnemyID = -1;
         currentTeamType = Game.teamType.Players; // current team Key
+
+        enableButtons();
     }
 
-    void Start()
+    void Awake()
     {
         initTurns();
     }
 
-    void updateTurns() {
-
-    }
-
     private void updateCurrentEnemy() {
-        // availableEnemyIDs.Clear();
-        // int currentTeamType = getCurrentCharacter().getTeam();
-
-        // for (int i = 0; i < characterList.Count; ++i) {
-        //     if (characterList[i].getTeam() != currentTeamType && characterList[i].getAlive()) {
-        //         availableEnemyIDs.Add(i);
-        //     }
-        // }
-
-        // if(availableEnemyIDs.Count > 0) {
-        //     currentEnemyID = availableEnemyIDs[0];
-
-        // } else {
-        //     // TODO : ALL POTENTIAL ENEMIES ARE DEAD. END THIS SCENE 
-        // }
-
         var enemiesList = getEnemyTeam();
 
         if (enemiesList.Count < 1) {
@@ -95,7 +103,7 @@ public class Game : MonoBehaviour
 
         Character enemy = enemiesList[0];
         for (int i = 0; i < enemiesList.Count; ++i) {
-            enemy =  enemiesList[i];
+            enemy = enemiesList[i];
             if (enemy.getAlive()) {
                 // Find first enemy that's alive for now;
                 currentEnemyID = i;
@@ -146,11 +154,15 @@ public class Game : MonoBehaviour
     private void switchTurns() {
         if (getCurrentTeam().Count <= (currentCharacterID + 1)) {
             switchTeams();
+
+            currentCharacterID = 0;
+            print ("WE'VE SWITCHED TEAMS SUCCESSFULLY");
+        } else {
+            currentCharacterID++;
         }
         
-        currentCharacterID++;
-
         updateCurrentEnemy();
+        enableButtons();
     }
 
     private void startGameAction(GameAction actionType) {
@@ -172,22 +184,35 @@ public class Game : MonoBehaviour
                 getCurrentCharacter().addActionSequence(Character.ActionSequenceType.MoveToNextScene);
                 break;
         }
+
+        requestedActionsOfType[actionType]++;
     }
 
-    public void startClickAction(ClickType clickType) {
-        switch(clickType) {
-            case ClickType.Attack :
-                // Debug.Log(" CLICKTYPE.ATTACK ACTION ");
-                startGameAction(GameAction.Attack);
+    public void startClickAction(ButtonType buttonType) {
+        startGameAction(buttonTypeToGameAction[buttonType]);
+    }
 
-                break;
-            case ClickType.EndTurn :
-                // Debug.Log(" CLICKTYPE.ENDTURN ACTION ");
-                startGameAction(GameAction.EndTurn);
+    public bool canPerformAction(GameAction actionType) {
+        bool can = true;
 
-                break;
+        if (actionNumRestriction[actionType] == -1) {
+            // do nothing, leave can true; -1 == no action number restriction
+        } else if (requestedActionsOfType[actionType] >= actionNumRestriction[actionType]) {
+            can &= false;
         }
+
+        //check for resource or other restriction here
+
+        return can;
     }
+
+    public bool getPressable(ButtonType buttonType) {
+        if (canPerformAction(buttonTypeToGameAction[buttonType])) {
+            return true;
+        };
+
+        return false;
+    } 
 
     
     // Update is called once per frame

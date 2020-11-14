@@ -58,8 +58,8 @@ public class Character : MonoBehaviour
     public struct CharacterStats {
         public CharacterStats(int health) {
             HP = health;
-            damage = 10;
-            movSpeed = 1.0f;
+            damage = 50;
+            movSpeed = 0.5f;
             critChance = 0.1f;
             critMult = 2.1f;
             team = Game.teamType.Players;
@@ -262,7 +262,7 @@ public class Character : MonoBehaviour
             startAnimation(getAssociatedAnimationType(currentActionInfo.actionType));
         } else if (currentActionInfo.actionType == ActionType.ReceiveDamage) {
 
-            print("ISHIT ANIM STARTED");
+            // print("ISHIT ANIM STARTED");
             characterState.HP -= currentActionInfo.damage;
             startAnimation(AnimationType.IsHit);
         } 

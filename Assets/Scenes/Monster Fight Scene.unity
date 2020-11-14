@@ -207,7 +207,7 @@ GameObject:
   - component: {fileID: 348558191}
   - component: {fileID: 348558190}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Text (TMP) - end turn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -382,7 +382,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   game: {fileID: 709159824}
-  clickType: 0
+  buttonType: 0
+  buttonText: {fileID: 1798896495}
 --- !u!114 &428338881
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -742,7 +743,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   game: {fileID: 709159824}
-  clickType: 1
+  buttonType: 1
+  buttonText: {fileID: 348558190}
 --- !u!114 &726216578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1507,7 +1509,7 @@ GameObject:
   - component: {fileID: 1798896496}
   - component: {fileID: 1798896495}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Text (TMP) - attack
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
