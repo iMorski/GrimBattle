@@ -1804,12 +1804,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   game: {fileID: 709159824}
-  Run: {fileID: 7400000, guid: 6ac973fa1f169c34096e9ea4588f538a, type: 2}
-  Idle: {fileID: 7400000, guid: 449a46c0fdf71c54a83c56af640a7f8b, type: 2}
-  Attack: {fileID: 7400000, guid: e8bc0864cb7a878418b772173db78da0, type: 2}
-  Death: {fileID: 7400000, guid: f282d72598768e644a40c4207df54a0e, type: 2}
-  IsHit: {fileID: 7400000, guid: 4a0e08ff7df0cdc4d92f8c9b4caf82fb, type: 2}
-  attackPixelOffset: -135
+  Run: {fileID: 7400000, guid: e335c386a3a5d594ca0c502f91fc84ea, type: 2}
+  Idle: {fileID: 7400000, guid: b2b17e03549d4f542ab6d31cbf85beb4, type: 2}
+  Attack: {fileID: 7400000, guid: a49a34aaf13017d498f3ff0abe49622e, type: 2}
+  Death: {fileID: 7400000, guid: d42691b009280f94eb21b6b8c291f137, type: 2}
+  IsHit: {fileID: 7400000, guid: c0133e682d75c0640a852f1dff5f24d2, type: 2}
+  attackPixelOffset: -120
   hpBar: {fileID: 2028431464}
 --- !u!95 &1781792819
 Animator:
@@ -1821,7 +1821,7 @@ Animator:
   m_GameObject: {fileID: 1781792816}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 02adf4570b558e747bf8ab07b22da2e0, type: 2}
+  m_Controller: {fileID: 9100000, guid: f3c003301445ed442b690cbdaeabd75e, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -1869,7 +1869,8 @@ SpriteRenderer:
   m_SortingLayerID: 275041755
   m_SortingLayer: 1
   m_SortingOrder: 83
-  m_Sprite: {fileID: 773362397302433733, guid: 015c80e729a56a94981885b571fc8901, type: 3}
+  m_Sprite: {fileID: -4744724232239111109, guid: bc830fbabf4c60241a36faa20bc71210,
+    type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
   m_FlipY: 0
