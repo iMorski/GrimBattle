@@ -5,13 +5,12 @@ using TMPro;
 
 public class UIButtonMosterScene : MonoBehaviour
 {
+    private float BUTTON_DISABLED_COLORMULT = 0.5f;
     private Animator Animator;
     [SerializeField] private Game game;
     [SerializeField] private Game.ButtonType buttonType;
-    // [SerializeField] private TextMeshPro buttonText;
-    [SerializeField] private TextMeshProUGUI buttonText;
+    [SerializeField] private UnityEngine.UI.Image icon;
     
-
     private Dictionary<bool, Color> buttonColors = new Dictionary<bool, Color>();
 
     private bool buttonEnabled = true;
@@ -20,8 +19,9 @@ public class UIButtonMosterScene : MonoBehaviour
         Animator = GetComponent<Animator>(); 
         buttonEnabled = true;
 
-        buttonColors[true] = buttonText.color;
-        buttonColors[false] = new Color(buttonText.color.grayscale, buttonText.color.grayscale,buttonText.color.grayscale,  buttonText.color.a);
+        buttonColors[true] = icon.color;
+        buttonColors[false] = new Color(icon.color.grayscale, icon.color.grayscale,icon.color.grayscale,  icon.color.a);
+        buttonColors[false] = buttonColors[false] * BUTTON_DISABLED_COLORMULT;
     }
 
     private void Start() {
@@ -45,7 +45,7 @@ public class UIButtonMosterScene : MonoBehaviour
         }
         buttonEnabled = enabled;
 
-        buttonText.color = buttonColors[enabled];
+        icon.color = buttonColors[enabled];
     }
 
     public bool getEnabled() {
