@@ -6,7 +6,6 @@ public class Character : MonoBehaviour
 {
     private float DEFAULT_LERP_FACTOR = 0.02f;
     private float CHARACTER_EPS = 0.001f;
-    private float DAMAGE_STICKY_DURATION_HPBAR = 0.1f;
 	public enum AnimationType {
 		Idle,
 		Run,
@@ -95,7 +94,6 @@ public class Character : MonoBehaviour
         public float critChance;
         public float critMult;
         public float speed; // per unit time 
-        // public ActionState actionState;
         public bool inAction;
         public bool alive;
         public bool isMoving;
@@ -128,8 +126,8 @@ public class Character : MonoBehaviour
     public int attackPixelOffset; // should also be based on team facing right/left ...
     private int teamID;
 
-    [SerializeField] private SpriteRenderer hpBar;
-    private float damageStickyStartTime = -1.0f;
+    [SerializeField] private GameObject hpBarObject;
+    private List<Visual> dependentVisuals = new List<Visual>();
 
     public void init(CharacterStats characterStats) {
         teamID = 0;
@@ -156,9 +154,9 @@ public class Character : MonoBehaviour
         characterState.name = "NoName";
         characterState.maxHP = characterStats.HP;
         characterState.HP = characterStats.HP;
-        characterState.trailingHP = (float)characterStats.HP;
-        damageStickyStartTime = -1.0f;
-        updateHPBarValues();
+
+        hpBarObject.AddComponent<HPBarVisual>().setCharacterAndInit(this);
+
         characterState.speed = characterStats.movSpeed;
         characterState.damage = characterStats.damage;
         characterState.damageBuff = 1.0f;
@@ -170,7 +168,7 @@ public class Character : MonoBehaviour
         characterState.targetAlpha = 1.0f;
         characterState.trailingAlpha = 1.0f;
         setCharacterAlpha(1.0f);
-        // characterState.actionState = ActionState.Idle;
+
         characterState.inAction = false;
         characterState.moveDirection = new Vector3(1.0f, 0.0f, 0.0f);
         characterState.team = characterStats.team;
@@ -189,6 +187,10 @@ public class Character : MonoBehaviour
         registerInScene();
     }
 
+    public void registerVisual(Visual v) {
+        dependentVisuals.Add(v);
+    }
+
     public string getName() {
         return characterState.name;
     }
@@ -203,6 +205,14 @@ public class Character : MonoBehaviour
 
     public void setTeamID(int ID) {
         teamID = ID;
+    }
+
+    public int getCurrentHP() {
+        return characterState.HP;
+    }
+
+    public int getMaxHP() {
+        return characterState.maxHP;
     }
 
     private void startAnimation(AnimationType animationType) {
@@ -233,10 +243,6 @@ public class Character : MonoBehaviour
             return (int)Mathf.Round((float)characterState.damage * characterState.damageBuff);
         }
     }
-
-    // public void setEnemy(Character enemy) {
-    //     gameInfo.curEnemy = enemy;
-    // }
 
     public bool isInAction() {
         return characterState.inAction;
@@ -273,7 +279,7 @@ public class Character : MonoBehaviour
             characterState.lastViewPortPosition = characterState.viewPortPosition;
             Vector3 toDestination = currentActionInfo.destination - characterState.viewPortPosition;
             // print("TO DEST : " + toDestination.ToString());
-            // toDestination.z = 0.0f;
+
             characterState.moveDirection = toDestination.normalized;
         } else if (currentActionInfo.actionType == ActionType.Attack) {
             startAnimation(getAssociatedAnimationType(currentActionInfo.actionType));
@@ -287,12 +293,6 @@ public class Character : MonoBehaviour
 
     private void updateHP(int value) {
         characterState.HP += value;
-        damageStickyStartTime = Time.realtimeSinceStartup;
-        updateHPBarValues();
-    }
-
-    private void updateNextScenePosition(float xCoord) {
-        // gameInfo.nextScenePosition = getGameController().getNextScenePositionForPlayer(playerId);
     }
 
     public Game.teamType getTeamType() {
@@ -314,9 +314,9 @@ public class Character : MonoBehaviour
         ActionInfo movementInfo = new ActionInfo(ActionType.Move);
         movementInfo.moveType = moveType;
 
-        Debug.Log("Added move action " + moveType.ToString());
-        Debug.Log("Destination : " + movementInfo.destination.ToString());
-        Debug.Log("My position : " + characterState.viewPortPosition.ToString());
+        // Debug.Log("Added move action " + moveType.ToString());
+        // Debug.Log("Destination : " + movementInfo.destination.ToString());
+        // Debug.Log("My position : " + characterState.viewPortPosition.ToString());
 
         actionsQueue.Add(movementInfo);
     }
@@ -389,7 +389,7 @@ public class Character : MonoBehaviour
     }
 
     public void endAction() {
-        Debug.Log(" END ACTION " + currentActionInfo.actionType.ToString());
+        // Debug.Log(" END ACTION " + currentActionInfo.actionType.ToString());
 
     	characterState.inAction = false;
     	startAnimation(AnimationType.Idle);
@@ -419,28 +419,20 @@ public class Character : MonoBehaviour
             return;
         } 
 
-        // Debug.Log(actionsQueue[0].actionType.ToString());
-
          // update position
         if (characterState.isMoving) {
-            // Debug.Log("MOVING");
-            // this.gameObject.transform.position = this.gameObject.transform.position;
+
             Vector3 left = currentActionInfo.destination - characterState.viewPortPosition;
-            // print ("position : " + characterState.viewPortPosition.ToString());
+
             float distanceLeft = left.magnitude;
             float distanceToTravel = Time.deltaTime * characterState.speed;
-            // print("LEFT : " + distanceLeft.ToString());
-            // print("VECTOR LEFT : " + left.ToString());
+
             if (distanceToTravel > distanceLeft) {
                 setViewPortPosition(currentActionInfo.destination);
                 endAction();
             } else {
                 setViewPortPosition(characterState.viewPortPosition + characterState.moveDirection * distanceToTravel);
             }
-
-            // Debug.Log(distanceToTravel.ToString());
-            // Debug.Log(characterState.moveDirection.ToString());
-
         }
 
         // update animation if still in action. TODO :: CHANGE THIS 
@@ -450,37 +442,14 @@ public class Character : MonoBehaviour
         }
     }
 
-    private void updateHPBarValues() {
-        float curHpPercentage = (float)characterState.HP/(float)characterState.maxHP;
-        float lastHpPercentage = characterState.trailingHP/(float)characterState.maxHP;
-
-        hpBar.material.SetFloat("_hpPercentage", curHpPercentage);
-        hpBar.material.SetFloat("_lastHpPercentage", lastHpPercentage);
-    }
-
-    private void updateTrailingHP() {
-        if (damageStickyStartTime > 0.0f) {
-            float timeElapsed = Time.realtimeSinceStartup;
-            if ((timeElapsed - damageStickyStartTime) < DAMAGE_STICKY_DURATION_HPBAR) {
-                return;
-            } else {
-                damageStickyStartTime = -1.0f;
-            }
-        }
-        
-        if ((int)characterState.trailingHP == characterState.HP) {
-            return;
-        }
-
-        characterState.trailingHP = Mathf.Lerp(characterState.trailingHP, characterState.HP, DEFAULT_LERP_FACTOR);
-        if ((int)characterState.trailingHP == characterState.HP) {
-            characterState.trailingHP = (float)characterState.HP;
-        }
-        updateHPBarValues();
-    }
-
     public void updateTargetAlphaOnDeath() {
         characterState.targetAlpha = 0.0f;
+    }
+
+    private void setDependentVisualsAlpha(float alpha) {
+        foreach(Visual v in dependentVisuals) {
+            v.setAlpha(alpha);
+        }
     }
 
     private void updateTrailingAlpha() {
@@ -488,12 +457,10 @@ public class Character : MonoBehaviour
             return;
         }
 
-        // print("Updating alpha");
-
         Color curColor = this.gameObject.GetComponent<SpriteRenderer>().material.color;
         curColor.a = Mathf.Lerp(curColor.a, characterState.targetAlpha, DEFAULT_LERP_FACTOR);
         
-        print ("ALPHA : " + curColor.a.ToString());
+        // print ("ALPHA : " + curColor.a.ToString());
         if (Mathf.Abs( curColor.a - characterState.targetAlpha) < CHARACTER_EPS) {
             curColor.a = characterState.targetAlpha;
 
@@ -501,20 +468,22 @@ public class Character : MonoBehaviour
         characterState.trailingAlpha = curColor.a;
 
         this.gameObject.GetComponent<SpriteRenderer>().material.color = curColor;
-        hpBar.material.SetFloat("_alpha", curColor.a);
+
+        setDependentVisualsAlpha(curColor.a);
     }
 
     private void setCharacterAlpha(float a) {
         Color curColor = this.gameObject.GetComponent<SpriteRenderer>().material.color;
         curColor.a = a;
         this.gameObject.GetComponent<SpriteRenderer>().material.color = curColor;
-        hpBar.material.SetFloat("_alpha", a);
+
+        setDependentVisualsAlpha(a);
     }
 
     private void updateTrailingProperties() {
-        updateTrailingHP();
         updateTrailingAlpha();
     }
+
     private int actionsCount = 0;
     void Update()
     {
@@ -529,10 +498,9 @@ public class Character : MonoBehaviour
         // start new action from queue if any. Comes last on update()
         if (characterState.inAction == false) {
 
-            // Debug.Log("INACTION FALSE");
             if (actionsQueue.Count != 0) {
                 actionsCount++;
-                Debug.Log(actionsCount.ToString());
+                // Debug.Log(actionsCount.ToString());
                 startQueueAction(actionsQueue[0]);
             }
         }

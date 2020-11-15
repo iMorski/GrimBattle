@@ -1524,7 +1524,7 @@ MonoBehaviour:
   Death: {fileID: 7400000, guid: f282d72598768e644a40c4207df54a0e, type: 2}
   IsHit: {fileID: 7400000, guid: 4a0e08ff7df0cdc4d92f8c9b4caf82fb, type: 2}
   attackPixelOffset: 135
-  hpBar: {fileID: 1179809449}
+  hpBarObject: {fileID: 1179809447}
 --- !u!1 &826229579
 GameObject:
   m_ObjectHideFlags: 0
@@ -2664,7 +2664,7 @@ MonoBehaviour:
   Death: {fileID: 7400000, guid: d42691b009280f94eb21b6b8c291f137, type: 2}
   IsHit: {fileID: 7400000, guid: c0133e682d75c0640a852f1dff5f24d2, type: 2}
   attackPixelOffset: -120
-  hpBar: {fileID: 2028431464}
+  hpBarObject: {fileID: 2028431462}
 --- !u!95 &1781792819
 Animator:
   serializedVersion: 3
