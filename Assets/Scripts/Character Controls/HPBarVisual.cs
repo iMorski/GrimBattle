@@ -137,6 +137,8 @@ public class HPBarVisual : Visual
 
         hpBar.material.SetFloat("_hpPercentage", curHpPercentage);
         hpBar.material.SetFloat("_lastHpPercentage", lastHpPercentage);
+        hpBar.material.SetFloat("_maxHP", (float)maxHP);
+        hpBar.material.SetFloat("_hpBlock", 50.0f);
     }
 
     private void updateHpBarVisual() {

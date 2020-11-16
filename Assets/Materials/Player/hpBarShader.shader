@@ -5,10 +5,14 @@
         _hpPercentage("hpPercentage", float) = 0.6
         _lastHpPercentage("lastHpPercentage", float) = 0.8
         _alpha("alpha", float) = 1.0
+        _maxHP("maxHP", float) = 150.0
+        _hpBlock("hpBlock", float) = 50.0
+
 
         _hpColor ("HP Color", Color) = (0.2, 0.6, 0.3)
         _backgroundColor ("Underlay Color", Color) = (0.1, 0.2, 0.3)
         _damageColor ("Damage Color", Color) = (0.85, 0.75, 0.8)
+        _separatorColor ("Separator Color", Color) = (0.1, 0.1, 0.1)
     }
     SubShader
     {
@@ -55,11 +59,14 @@
             float _hpPercentage;
             float _lastHpPercentage;
             float _alpha;
+            float _maxHP;
+            float _hpBlock;
 
             // user-set properties
             float3 _hpColor;
             float3 _backgroundColor;
             float3 _damageColor;
+            float3 _separatorColor;
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -70,7 +77,10 @@
                 col.rgb = lerp(col.rgb, _damageColor, step(i.uv.x, _lastHpPercentage));
 
                 // draw hp on top
-                col.rgb = lerp(col.rgb, _hpColor, step(i.uv.x, _hpPercentage));     
+                float modVal = _hpBlock / _maxHP;
+                float inputSeparator = ((fmod(i.uv.x, modVal) < 0.013) || (modVal - fmod(i.uv.x, modVal) < 0.013))  ? 1.0 : 0.0;
+                float3 hpColWithSeparators = lerp(_hpColor, _separatorColor, inputSeparator);
+                col.rgb = lerp(col.rgb, hpColWithSeparators, step(i.uv.x, _hpPercentage));     
 
                 return col;
             }
