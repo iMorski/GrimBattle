@@ -62,7 +62,7 @@ public class Character : MonoBehaviour
             HP = health;
             damage = 35;
             movSpeed = 0.5f;
-            critChance = 0.1f;
+            critChance = 0.5f;
             critMult = 2.1f;
             team = Game.teamType.Players;
         }

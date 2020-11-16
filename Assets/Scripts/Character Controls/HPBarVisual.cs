@@ -77,7 +77,7 @@ public class HPBarVisual : Visual
         hpBar.material.SetFloat("_alpha", a);
     }
 
-    private void generateDamageText(int damageOrHeal) {
+    private void generateDamageText(Character.Damage damageInfo) {
         var transform = this.gameObject.GetComponent<Transform>();
 
         Vector2 hpBarDimensions = new Vector2(transform.lossyScale.x, transform.lossyScale.y);
@@ -85,10 +85,17 @@ public class HPBarVisual : Visual
         GameObject damageTextObject = Instantiate(textPrefab, this.gameObject.transform);
         damageTextObject.transform.localScale = new Vector2(1.0f, 1.0f) / hpBarDimensions;
 
-        if (damageOrHeal > 0) {
-            damageTextObject.GetComponent<TextMeshPro>().text = "- " + damageOrHeal.ToString();
+        TextMeshPro tmp = damageTextObject.GetComponent<TextMeshPro>();
+        if (damageInfo.damage > 0) {
+            tmp.text = "- " + damageInfo.damage.ToString();
         } else { 
-            damageTextObject.GetComponent<TextMeshPro>().text = "+ " + (-damageOrHeal).ToString();
+           tmp.text = "+ " + (-damageInfo.damage).ToString();
+        }
+
+        if (damageInfo.isCrit) {
+            tmp.fontSize = CRIT_FONTSIZE;
+        } else {
+            tmp.fontSize = DAMAGE_FONTSIZE;
         }
 
         Vector2 r = Random.insideUnitCircle;
@@ -122,13 +129,16 @@ public class HPBarVisual : Visual
             return;
         }
 
-        int hp = character.getCurrentHP();
-        if (currentShownHP == hp) {
+        List<Character.Damage> lastFrameDamage = character.getLastFrameDamage();
+        if (lastFrameDamage.Count == 0) {
             return;
+        } 
+        int hp = character.getCurrentHP();
+
+        for (int i = 0; i < lastFrameDamage.Count; ++i) {
+            generateDamageText(lastFrameDamage[i]);
         }
 
-        // generate for each instance in List<Damage> getLastFrameDamage() maybe generate damage with delay
-        generateDamageText(currentShownHP - hp);
         currentShownHP = hp;
         damageStickyStartTime = Time.realtimeSinceStartup;
         updateHPBarValues();
