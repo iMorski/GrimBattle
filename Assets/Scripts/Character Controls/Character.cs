@@ -458,6 +458,8 @@ public class Character : MonoBehaviour
 
     public void updateTargetAlphaOnDeath() {
         characterState.targetAlpha = 0.0f;
+        Color startingColor = this.gameObject.GetComponent<SpriteRenderer>().material.color;
+        StartCoroutine(deathCoro(startingColor, characterState.targetAlpha));
     }
 
     private void setDependentVisualsAlpha(float alpha) {
@@ -466,24 +468,24 @@ public class Character : MonoBehaviour
         }
     }
 
-    private void updateTrailingAlpha() {
-        if (Mathf.Abs(characterState.trailingAlpha - characterState.targetAlpha) < CHARACTER_EPS) {
-            return;
+    private IEnumerator deathCoro(Color startingColor, float targetAlpha) {
+        Color currentColor = this.gameObject.GetComponent<SpriteRenderer>().material.color;
+        for (float a = startingColor.a; Mathf.Abs(targetAlpha - currentColor.a) >= DEFAULT_LERP_FACTOR; a -= DEFAULT_LERP_FACTOR) {
+
+            currentColor.a = a;
+            this.gameObject.GetComponent<SpriteRenderer>().material.color = currentColor;
+            setDependentVisualsAlpha(currentColor.a);
+            characterState.trailingAlpha = currentColor.a;
+
+            yield return new WaitForEndOfFrame();
         }
 
-        Color curColor = this.gameObject.GetComponent<SpriteRenderer>().material.color;
-        curColor.a = Mathf.Lerp(curColor.a, characterState.targetAlpha, DEFAULT_LERP_FACTOR);
-        
-        // print ("ALPHA : " + curColor.a.ToString());
-        if (Mathf.Abs( curColor.a - characterState.targetAlpha) < CHARACTER_EPS) {
-            curColor.a = characterState.targetAlpha;
+        currentColor.a = targetAlpha;
+        this.gameObject.GetComponent<SpriteRenderer>().material.color = currentColor;
+        setDependentVisualsAlpha(currentColor.a);
+        characterState.trailingAlpha = currentColor.a;
 
-        }
-        characterState.trailingAlpha = curColor.a;
-
-        this.gameObject.GetComponent<SpriteRenderer>().material.color = curColor;
-
-        setDependentVisualsAlpha(curColor.a);
+        yield return null;
     }
 
     private void setCharacterAlpha(float a) {
@@ -494,10 +496,6 @@ public class Character : MonoBehaviour
         setDependentVisualsAlpha(a);
     }
 
-    private void updateTrailingProperties() {
-        updateTrailingAlpha();
-    }
-
     public List<Damage> getLastFrameDamage() {
         return damageRecievedLastFrame;
     }
@@ -505,9 +503,6 @@ public class Character : MonoBehaviour
     {
         // comes first in Update 
         damageRecievedLastFrame.Clear();
-
-        // can update even if dead. for ex - alpha
-        updateTrailingProperties();
 
         // return if dead
         if (characterState.alive == false) {
