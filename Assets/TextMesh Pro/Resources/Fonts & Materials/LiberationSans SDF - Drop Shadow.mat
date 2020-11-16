@@ -50,6 +50,7 @@ Material:
     - _BumpFace: 0
     - _BumpOutline: 0
     - _ColorMask: 15
+    - _CullMode: 0
     - _Diffuse: 0.5
     - _DiffusePower: 1
     - _FaceDilate: 0.1
@@ -85,9 +86,9 @@ Material:
     - _TextureHeight: 1024
     - _TextureWidth: 1024
     - _UnderlayDilate: 0
-    - _UnderlayOffsetX: 0.5
+    - _UnderlayOffsetX: 0.54
     - _UnderlayOffsetY: -0.5
-    - _UnderlaySoftness: 0.05
+    - _UnderlaySoftness: 0
     - _VertexOffsetX: 0
     - _VertexOffsetY: 0
     - _WeightBold: 0.75

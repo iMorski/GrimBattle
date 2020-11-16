@@ -36,12 +36,12 @@ public class Character : MonoBehaviour
     private struct ActionInfo {
         public ActionInfo(ActionType aType) {
             actionType = aType;
-            damage = 0;
+            damage = new Damage(0, false);
             destination = new Vector3(0.0f, 0.0f, 0.0f);
             moveType = MoveType.ToEnemy;
         }
 
-        public ActionInfo(ActionType aType, int dam, Vector3 dest, MoveType movType) {
+        public ActionInfo(ActionType aType, Damage dam, Vector3 dest, MoveType movType) {
             actionType = aType;
             damage = dam;
             destination = dest;
@@ -49,7 +49,7 @@ public class Character : MonoBehaviour
         }
 
         public ActionType actionType;
-        public int damage;
+        public Damage damage;
         public Vector3 destination;
         public MoveType moveType;
     };
@@ -106,9 +106,17 @@ public class Character : MonoBehaviour
         public float trailingAlpha;
     }
 
+    public struct Damage {
+        public Damage(int d, bool c) {
+            damage = d;
+            isCrit = c;
+        }
+        public int damage;
+        public bool isCrit;
+    } 
+
     public struct SceneInfo {
         public Animator animator;
-        public GameObject gameObject;
         public Camera gameCamera;
     }
 
@@ -127,7 +135,9 @@ public class Character : MonoBehaviour
     private int teamID;
 
     [SerializeField] private GameObject hpBarObject;
+    [SerializeField] private GameObject textPrefab;
     private List<Visual> dependentVisuals = new List<Visual>();
+    private List<Damage> damageRecievedLastFrame = new List<Damage>();
 
     public void init(CharacterStats characterStats) {
         teamID = 0;
@@ -155,8 +165,6 @@ public class Character : MonoBehaviour
         characterState.maxHP = characterStats.HP;
         characterState.HP = characterStats.HP;
 
-        hpBarObject.AddComponent<HPBarVisual>().setCharacterAndInit(this);
-
         characterState.speed = characterStats.movSpeed;
         characterState.damage = characterStats.damage;
         characterState.damageBuff = 1.0f;
@@ -175,15 +183,15 @@ public class Character : MonoBehaviour
 
         sceneEntities = new SceneInfo();
         sceneEntities.animator = this.gameObject.GetComponent<Animator>();
-        sceneEntities.gameObject = this.gameObject;
         sceneEntities.gameCamera = game.getMainCamera();
         
-        characterState.viewPortPosition = sceneEntities.gameCamera.WorldToViewportPoint(sceneEntities.gameObject.transform.position);
+        characterState.viewPortPosition = sceneEntities.gameCamera.WorldToViewportPoint(this.gameObject.transform.position);
         characterState.lastViewPortPosition = characterState.viewPortPosition;
 
         setViewPortPosition(characterState.viewPortPosition);
         startAnimation(AnimationType.Idle);
 
+        hpBarObject.AddComponent<HPBarVisual>().init(this, textPrefab);
         registerInScene();
     }
 
@@ -215,6 +223,18 @@ public class Character : MonoBehaviour
         return characterState.maxHP;
     }
 
+    public GameObject getGameObject() {
+        return this.gameObject;
+    }
+
+    public Camera getGameCamera() {
+        return sceneEntities.gameCamera;
+    }
+
+    public Vector3 getViewPortPosition() {
+        return characterState.viewPortPosition;
+    }
+
     private void startAnimation(AnimationType animationType) {
         // print( "STARTED ANIMATION : " + animationTypeToString[animationType]);
 
@@ -225,23 +245,20 @@ public class Character : MonoBehaviour
 
     private void setViewPortPosition(Vector3 vPpos) {
         Vector3 worldPos = sceneEntities.gameCamera.ViewportToWorldPoint(vPpos);
-        // worldPos.z = vPpos.z;
-        // Debug.Log("position set : " + worldPos.ToString());
-        sceneEntities.gameObject.transform.position = worldPos;
+        this.gameObject.transform.position = worldPos;
         characterState.viewPortPosition = vPpos;
     }
 
-    public Vector3 getViewPortPosition() {
-        return characterState.viewPortPosition;
-    }
-
-    public int getAttackDamage() {
+    public Damage getAttackDamage() {
         bool willCrit = characterState.critChance >= Random.Range(0.0f, 1.0f);
+        int damage = 0;
         if (willCrit) {
-             return (int)Mathf.Round((float)characterState.damage * characterState.damageBuff * characterState.critMult * characterState.damageBuff);
+            damage = (int)Mathf.Round((float)characterState.damage * characterState.damageBuff * characterState.critMult * characterState.damageBuff);
         } else {
-            return (int)Mathf.Round((float)characterState.damage * characterState.damageBuff);
+            damage = (int)Mathf.Round((float)characterState.damage * characterState.damageBuff);
         }
+
+        return new Damage(damage, willCrit);
     }
 
     public bool isInAction() {
@@ -284,9 +301,8 @@ public class Character : MonoBehaviour
         } else if (currentActionInfo.actionType == ActionType.Attack) {
             startAnimation(getAssociatedAnimationType(currentActionInfo.actionType));
         } else if (currentActionInfo.actionType == ActionType.ReceiveDamage) {
-
-            // print("ISHIT ANIM STARTED");
-            updateHP(-currentActionInfo.damage);
+            damageRecievedLastFrame.Add(currentActionInfo.damage);
+            updateHP(-currentActionInfo.damage.damage);
             startAnimation(AnimationType.IsHit);
         } 
     }
@@ -321,7 +337,7 @@ public class Character : MonoBehaviour
         actionsQueue.Add(movementInfo);
     }
 
-    private void addReceiveDamageAction(int damage) {
+    private void addReceiveDamageAction(Damage damage) {
         ActionInfo receiveDamageInfo = new ActionInfo(ActionType.ReceiveDamage);
         receiveDamageInfo.damage = damage;
 
@@ -346,7 +362,7 @@ public class Character : MonoBehaviour
         return AnimationType.Attack;
     }
 
-    public void receiveDamage(int damage) {
+    public void receiveDamage(Damage damage) {
         addReceiveDamageAction(damage);
     }
     private void clearActionQueueAndDie() {
@@ -356,11 +372,9 @@ public class Character : MonoBehaviour
     }
 
     public void dealDamage() {
-        int damage = currentActionInfo.damage;
+        Damage damage = currentActionInfo.damage;
 
         game.getCurrentEnemy().receiveDamage(damage);
-
-        // print("DEALT " + damage.ToString() + " DAMAGE !!!");
     }
 
     public void addActionSequence(ActionSequenceType actionSequenceType) {
@@ -484,23 +498,28 @@ public class Character : MonoBehaviour
         updateTrailingAlpha();
     }
 
-    private int actionsCount = 0;
+    public List<Damage> getLastFrameDamage() {
+        return damageRecievedLastFrame;
+    }
     void Update()
     {
+        // comes first in Update 
+        damageRecievedLastFrame.Clear();
+
+        // can update even if dead. for ex - alpha
         updateTrailingProperties();
 
+        // return if dead
         if (characterState.alive == false) {
             return;
         }
 
+        // update if alive 
         updateCurrentAction();
 
         // start new action from queue if any. Comes last on update()
         if (characterState.inAction == false) {
-
             if (actionsQueue.Count != 0) {
-                actionsCount++;
-                // Debug.Log(actionsCount.ToString());
                 startQueueAction(actionsQueue[0]);
             }
         }

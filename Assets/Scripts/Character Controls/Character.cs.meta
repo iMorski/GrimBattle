@@ -3,7 +3,16 @@ guid: 2046ceef17e40ae4a8047500f413c0e4
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - game: {instanceID: 0}
+  - Run: {instanceID: 0}
+  - Idle: {instanceID: 0}
+  - Attack: {instanceID: 0}
+  - Death: {instanceID: 0}
+  - IsHit: {instanceID: 0}
+  - hpBarObject: {instanceID: 0}
+  - textPrefab: {fileID: 1095756212425229972, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
