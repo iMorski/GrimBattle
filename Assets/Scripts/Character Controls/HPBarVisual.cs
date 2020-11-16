@@ -12,7 +12,7 @@ public class HPBarVisual : Visual
     private float FLOATING_TEXT_SPEED = 0.01f;
     private float FLOATING_TEXT_TIME_BEFORE_FADE = 0.6f;
     private static float FLOATING_TEXT_FADESPEED = 1.0f;
-    private float CRIT_PAUSE_TIME = 0.2f;
+    private float CRIT_PAUSE_TIME = 0.4f;
     private float DAMAGE_FONTSIZE = 2.5f;
     private float CRIT_FONTSIZE = 4.0f;
     private Character character;
@@ -28,11 +28,12 @@ public class HPBarVisual : Visual
     private class MovingDamageInstance { 
         private float DAMAGE_TEXT_LERP_FACTOR = 0.02f;
         private float EPS = 0.001f;
-        public MovingDamageInstance(GameObject o, Vector3 viewPortPos, float upLen, float time) {
+        public MovingDamageInstance(GameObject o, Vector3 viewPortPos, float upLen, float time, Character.Damage d) {
             gameObject = o;
             vpPos = viewPortPos;
             upLenVP = upLen;
             timeCreated = time;
+            damage = d;
         }
 
         public bool updateAlpha(float targetAlpha) {
@@ -55,6 +56,9 @@ public class HPBarVisual : Visual
         public Vector3 vpPos;
         public float upLenVP; // vector that is used for upwards movement
         public float timeCreated;
+
+        public Character.Damage damage;
+
     }
 
     List<MovingDamageInstance> dependentDamageText = new List<MovingDamageInstance>();
@@ -89,14 +93,14 @@ public class HPBarVisual : Visual
         if (damageInfo.damage > 0) {
             tmp.text = "- " + damageInfo.damage.ToString();
         } else { 
-           tmp.text = "+ " + (-damageInfo.damage).ToString();
+            tmp.text = "+ " + (-damageInfo.damage).ToString();
         }
 
-        if (damageInfo.isCrit) {
-            tmp.fontSize = CRIT_FONTSIZE;
-        } else {
-            tmp.fontSize = DAMAGE_FONTSIZE;
-        }
+        // if (damageInfo.isCrit) {
+        //     tmp.fontSize = CRIT_FONTSIZE;
+        // } else {
+        //     tmp.fontSize = DAMAGE_FONTSIZE;
+        // }
 
         Vector2 r = Random.insideUnitCircle;
         Vector3 offset = new Vector3(r.x, r.y, 0.0f);
@@ -115,7 +119,7 @@ public class HPBarVisual : Visual
         Vector3 vpPos = hpBarVPPos + offset;
         setViewPortPosition(hpBarVPPos + offset, damageTextObject);
 
-        MovingDamageInstance instance = new MovingDamageInstance(damageTextObject, vpPos, offsetLen * FLOATING_TEXT_SPEED, Time.realtimeSinceStartup); 
+        MovingDamageInstance instance = new MovingDamageInstance(damageTextObject, vpPos, offsetLen * FLOATING_TEXT_SPEED, Time.realtimeSinceStartup, damageInfo); 
         dependentDamageText.Add(instance); 
     }
 
@@ -173,17 +177,42 @@ public class HPBarVisual : Visual
         updateHPBarValues();
     }
 
+    private float mix(float a, float b, float m) {
+        return a * (1.0f - m) + b * m;
+    }
+    private float saturate (float a) {
+        if (a > 1.0f) {
+            return 1.0f;
+        } else if (a < 0.0f) {
+            return 0.0f;
+        } else return a;
+    }
     private void updateFloatingText() {
         for (int i = 0; i < dependentDamageText.Count; ++i) {
 
-            // update position 
-            Vector3 newVpPos = dependentDamageText[i].vpPos;
-            newVpPos.y += dependentDamageText[i].upLenVP;
-            setViewPortPosition(newVpPos, dependentDamageText[i].gameObject);
-            dependentDamageText[i].vpPos = newVpPos;
 
+            float isCrit = (dependentDamageText[i].damage.isCrit) ? 1.0f : 0.0f;
+
+            // scale font up if isCrit
+            if (dependentDamageText[i].damage.isCrit) {
+                float fontSize = dependentDamageText[i].gameObject.GetComponent<TextMeshPro>().fontSize;
+                if (Mathf.Abs(fontSize - CRIT_FONTSIZE) > 0.001f) {
+                    float mixC = saturate((Time.realtimeSinceStartup - dependentDamageText[i].timeCreated) / CRIT_PAUSE_TIME);
+                    fontSize = mix(fontSize, CRIT_FONTSIZE, mixC);
+                    dependentDamageText[i].gameObject.GetComponent<TextMeshPro>().fontSize = fontSize;
+                }
+            }
+
+            // update position 
+            if (Time.realtimeSinceStartup - dependentDamageText[i].timeCreated > CRIT_PAUSE_TIME * isCrit) {
+                Vector3 newVpPos = dependentDamageText[i].vpPos;
+                newVpPos.y += dependentDamageText[i].upLenVP;
+                setViewPortPosition(newVpPos, dependentDamageText[i].gameObject);
+                dependentDamageText[i].vpPos = newVpPos;
+            }
+            
             // update alpha and existence
-            if (Time.realtimeSinceStartup - dependentDamageText[i].timeCreated > FLOATING_TEXT_TIME_BEFORE_FADE) {
+            if (Time.realtimeSinceStartup - dependentDamageText[i].timeCreated > (FLOATING_TEXT_TIME_BEFORE_FADE + CRIT_PAUSE_TIME * isCrit)) {
                 bool reachedAlphaTarget = dependentDamageText[i].updateAlpha(0.0f);
                 if (reachedAlphaTarget) {
                     Destroy(dependentDamageText[i].gameObject);
