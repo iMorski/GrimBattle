@@ -12,7 +12,7 @@ public class HPBarVisual : Visual
     private float FLOATING_TEXT_SPEED = 0.01f;
     private float FLOATING_TEXT_TIME_BEFORE_FADE = 0.6f;
     private static float FLOATING_TEXT_FADESPEED = 1.0f;
-    private float CRIT_PAUSE_TIME = 0.4f;
+    private float CRIT_PAUSE_TIME = 0.3f;
     private float DAMAGE_FONTSIZE = 2.5f;
     private float CRIT_FONTSIZE = 4.0f;
     private Character character;
@@ -74,7 +74,6 @@ public class HPBarVisual : Visual
         trailingHP = (float)currentShownHP;
 
         updateHPBarValues();
-        // generateDamageText(100);
     }
 
     public override void setAlpha(float a)  {
@@ -91,16 +90,10 @@ public class HPBarVisual : Visual
 
         TextMeshPro tmp = damageTextObject.GetComponent<TextMeshPro>();
         if (damageInfo.damage > 0) {
-            tmp.text = "- " + damageInfo.damage.ToString();
+            tmp.text = "-" + damageInfo.damage.ToString();
         } else { 
-            tmp.text = "+ " + (-damageInfo.damage).ToString();
+            tmp.text = "+" + (-damageInfo.damage).ToString();
         }
-
-        // if (damageInfo.isCrit) {
-        //     tmp.fontSize = CRIT_FONTSIZE;
-        // } else {
-        //     tmp.fontSize = DAMAGE_FONTSIZE;
-        // }
 
         Vector2 r = Random.insideUnitCircle;
         Vector3 offset = new Vector3(r.x, r.y, 0.0f);
@@ -128,20 +121,10 @@ public class HPBarVisual : Visual
         gObject.transform.position = worldPos;
     }
 
-    private void captureNewDamageInstance() {
-        if (!character.getAlive()) {
-            return;
-        }
-
-        List<Character.Damage> lastFrameDamage = character.getLastFrameDamage();
-        if (lastFrameDamage.Count == 0) {
-            return;
-        } 
+    public void invokeDamage(Character.Damage damage) {
         int hp = character.getCurrentHP();
 
-        for (int i = 0; i < lastFrameDamage.Count; ++i) {
-            generateDamageText(lastFrameDamage[i]);
-        }
+        generateDamageText(damage);
 
         currentShownHP = hp;
         damageStickyStartTime = Time.realtimeSinceStartup;
@@ -190,7 +173,6 @@ public class HPBarVisual : Visual
     private void updateFloatingText() {
         for (int i = 0; i < dependentDamageText.Count; ++i) {
 
-
             float isCrit = (dependentDamageText[i].damage.isCrit) ? 1.0f : 0.0f;
 
             // scale font up if isCrit
@@ -224,8 +206,6 @@ public class HPBarVisual : Visual
 
     void Update()
     {
-        captureNewDamageInstance();
-        
         updateHpBarVisual();
         updateFloatingText();
     }

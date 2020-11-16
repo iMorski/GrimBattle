@@ -104,6 +104,7 @@ public class Character : MonoBehaviour
         public Game.teamType team;
         public float targetAlpha;
         public float trailingAlpha;
+        public Damage lastDamageReceived;
     }
 
     public struct Damage {
@@ -137,8 +138,7 @@ public class Character : MonoBehaviour
     [SerializeField] private GameObject hpBarObject;
     [SerializeField] private GameObject textPrefab;
     private List<Visual> dependentVisuals = new List<Visual>();
-    private List<Damage> damageRecievedLastFrame = new List<Damage>();
-
+    
     public void init(CharacterStats characterStats) {
         teamID = 0;
 
@@ -301,8 +301,9 @@ public class Character : MonoBehaviour
         } else if (currentActionInfo.actionType == ActionType.Attack) {
             startAnimation(getAssociatedAnimationType(currentActionInfo.actionType));
         } else if (currentActionInfo.actionType == ActionType.ReceiveDamage) {
-            damageRecievedLastFrame.Add(currentActionInfo.damage);
+            characterState.lastDamageReceived = currentActionInfo.damage;
             updateHP(-currentActionInfo.damage.damage);
+            hpBarObject.GetComponent<HPBarVisual>().invokeDamage(currentActionInfo.damage);
             startAnimation(AnimationType.IsHit);
         } 
     }
@@ -369,6 +370,7 @@ public class Character : MonoBehaviour
         actionsQueue.Clear();
         startAnimation(AnimationType.Death);
         characterState.alive = false;
+        updateHP(-characterState.HP);
     }
 
     public void dealDamage() {
@@ -418,8 +420,6 @@ public class Character : MonoBehaviour
         }
 
         if (characterState.HP <= 0) {
-            // make HP equal 0
-            updateHP(-characterState.HP);
             clearActionQueueAndDie();
         }
     }
@@ -496,14 +496,11 @@ public class Character : MonoBehaviour
         setDependentVisualsAlpha(a);
     }
 
-    public List<Damage> getLastFrameDamage() {
-        return damageRecievedLastFrame;
+    public Damage getLastDamageReceived() {
+        return characterState.lastDamageReceived;
     }
     void Update()
     {
-        // comes first in Update 
-        damageRecievedLastFrame.Clear();
-
         // return if dead
         if (characterState.alive == false) {
             return;

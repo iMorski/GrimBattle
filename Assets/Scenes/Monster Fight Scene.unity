@@ -3107,6 +3107,29 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1308470986}
     m_Modifications:
+    - target: {fileID: 1095756212425229968, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
+        type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1095756212425229968, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 565075316468506712, guid: 78a355a8d91fe4d4281499ddeacdde86,
+        type: 2}
+    - target: {fileID: 1095756212425229970, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
+        type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 78a355a8d91fe4d4281499ddeacdde86,
+        type: 2}
+    - target: {fileID: 1095756212425229970, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
+        type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 565075316468506712, guid: 78a355a8d91fe4d4281499ddeacdde86,
+        type: 2}
     - target: {fileID: 1095756212425229971, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3170,7 +3193,7 @@ PrefabInstance:
     - target: {fileID: 1095756212425229971, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
         type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.12
       objectReference: {fileID: 0}
     - target: {fileID: 1095756212425229971, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
         type: 3}
