@@ -78,7 +78,7 @@
 
                 // draw hp on top
                 float modVal = _hpBlock / _maxHP;
-                float inputSeparator = ((fmod(i.uv.x, modVal) < 0.013) || (modVal - fmod(i.uv.x, modVal) < 0.013))  ? 1.0 : 0.0;
+                float inputSeparator = ((fmod(i.uv.x, modVal) < 0.014) || (modVal - fmod(i.uv.x, modVal) < 0.014))  ? 1.0 : 0.0;
                 float3 hpColWithSeparators = lerp(_hpColor, _separatorColor, inputSeparator);
                 col.rgb = lerp(col.rgb, hpColWithSeparators, step(i.uv.x, _hpPercentage));     
 
