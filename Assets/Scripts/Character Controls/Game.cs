@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
+    // character generated position consts below : 
+    private const float GAME_Z_CONST = 10.0f;
+    private const float DISTANCE_BETWEEN_CHARACTERS = 0.1f;
+    private const float MAX_GROUND_Y = 0.5f;
+    private const float MIN_CHARACTER_Y = 0.2f;
     public enum ButtonType {
         Attack,
         EndTurn
@@ -14,7 +19,7 @@ public class Game : MonoBehaviour
         MoveToNextScreen
     }
 
-    public enum teamType {
+    public enum TeamType {
         Players,
         Monsters
     }
@@ -23,10 +28,10 @@ public class Game : MonoBehaviour
     private List<Character> characterList = new List<Character>();
 
     private List<UIButtonMosterScene> buttons = new List<UIButtonMosterScene>();
-    private Dictionary<Game.teamType, List<Character>> characterListsByTeamType = new Dictionary<Game.teamType, List<Character>>();
+    private Dictionary<Game.TeamType, List<Character>> characterListsByTeamType = new Dictionary<Game.TeamType, List<Character>>();
     private int currentCharacterID = 0;
     private int currentEnemyID = 0;
-    private Game.teamType currentTeamType = Game.teamType.Players;
+    private Game.TeamType currentTeamType = Game.TeamType.Players;
     private bool waitingToSwitchTurns = false;
 
     public Dictionary<ButtonType, GameAction> buttonTypeToGameAction = new Dictionary<ButtonType, GameAction>(){
@@ -45,6 +50,15 @@ public class Game : MonoBehaviour
         {GameAction.EndTurn, -1},
         {GameAction.MoveToNextScreen, -1}
     };
+
+    public GameObject characterParent;
+    [System.Serializable] public struct CharacterPrefab {
+        public Character.CharacterType characterType;
+        public GameObject prefab;
+    }
+    public CharacterPrefab[] characterTypeToPrefabArray;
+
+    private Dictionary<Character.CharacterType, GameObject> characterTypeToPrefab = new Dictionary<Character.CharacterType, GameObject>();
 
     public Camera getMainCamera() {
         return gameCamera;
@@ -83,14 +97,97 @@ public class Game : MonoBehaviour
     private void initTurns() {
         currentCharacterID = -1;
         currentEnemyID = -1;
-        currentTeamType = Game.teamType.Players; // current team Key
+        currentTeamType = Game.TeamType.Players; // current team Key
 
         enableButtons(true);
     }
 
+    private void loadMonsters() {
+        PlayerDataList dataList = JsonUtility.FromJson<PlayerDataList>(System.IO.File.ReadAllText(PathGetter.getScriptFolderPath(this) + "/MonsterInfo.json"));
+
+        lastPlayerVPPosX = 1.0f;
+        foreach(PlayerData d in dataList.data) {
+
+            print ("TYPEEEEE : " + d.characterType.ToString());
+
+            GameObject newCharacterObject = Instantiate(characterTypeToPrefab[(Character.CharacterType)d.characterType], characterParent.transform);
+
+            customCharacterController chController = newCharacterObject.GetComponent<customCharacterController>();
+
+            chController.setTeamAndInit(TeamType.Monsters);
+
+            lastPlayerVPPosX -= DISTANCE_BETWEEN_CHARACTERS;
+            Vector3 vpPos = new Vector3(lastPlayerVPPosX, Random.Range(MIN_CHARACTER_Y, MAX_GROUND_Y), GAME_Z_CONST);
+            chController.setViewPortPosition(vpPos);
+
+            // monsters face left, while all of our textures are facing right
+            newCharacterObject.GetComponent<SpriteRenderer>().flipX = true;
+            chController.attackPixelOffset = chController.attackPixelOffset * (-1);
+        }
+    }
+
+    private float lastPlayerVPPosX = 0.0f;
+    private void createGameCharacter(PlayerData data) {
+       
+
+
+    }
+    private void loadPlayers() {
+        PlayerDataList dataList = JsonUtility.FromJson<PlayerDataList>(System.IO.File.ReadAllText(PathGetter.getScriptFolderPath(this) + "/PlayerInfo.json"));
+
+        lastPlayerVPPosX = 0.0f;
+        foreach(PlayerData d in dataList.data) {
+            GameObject newCharacterObject = Instantiate(characterTypeToPrefab[d.characterType], characterParent.transform);
+
+            customCharacterController chController = newCharacterObject.GetComponent<customCharacterController>();
+
+            chController.setTeamAndInit(TeamType.Players);
+
+            lastPlayerVPPosX += DISTANCE_BETWEEN_CHARACTERS;
+            Vector3 vpPos = new Vector3(lastPlayerVPPosX, Random.Range(MIN_CHARACTER_Y, MAX_GROUND_Y), GAME_Z_CONST);
+            chController.setViewPortPosition(vpPos);
+        }
+    }
+
+    private void populatePrefabDictionary() {
+        for(int i = 0; i < characterTypeToPrefabArray.Length; ++i) {
+            characterTypeToPrefab.Add(characterTypeToPrefabArray[i].characterType, characterTypeToPrefabArray[i].prefab);
+        }
+    }
+
     void Awake()
     {
-        initTurns();
+        populatePrefabDictionary();
+        loadMonsters();
+        loadPlayers();
+    }
+
+    [System.Serializable] public class PlayerData {
+        public int playerRegID;
+        public int characterID; 
+        public Character.CharacterType characterType;
+        public Character.CharacterStats stats;
+    }
+
+    // [System.Serializable] PlayerData[] playerCharacterData;
+
+    [System.Serializable] public class PlayerDataList {
+        public List<PlayerData> data = new List<PlayerData>();
+    } 
+    private void writePlayerInfo(List<Character> playersTeam) {
+        PlayerDataList dataList = new PlayerDataList();
+        foreach(Character ch in playersTeam) {
+            PlayerData d = new PlayerData();
+            d.stats = playersTeam[0].getCharacterStats();
+            d.playerRegID = 0; // player ID in data -- TODO 
+            d.characterID = 0; // character ID for current player (if player has multiple characters) -- TODO
+            dataList.data.Add(d);
+        }
+    
+        string players = JsonUtility.ToJson(dataList);
+
+        System.IO.File.WriteAllText(PathGetter.getScriptFolderPath(this) + "/PlayerInfo.json", players);
+        System.IO.File.WriteAllText(PathGetter.getScriptFolderPath(this) + "/MonsterInfo.json", players);
     }
 
     private void updateCurrentEnemy() {
@@ -115,21 +212,30 @@ public class Game : MonoBehaviour
 
     private void switchTeams() {
         // DUMB IMPLEMENTATION FOR NOW; Needs to be - find next team with > 0 alive members; if none - move to next scene
-        if (currentTeamType == Game.teamType.Players) {
-            currentTeamType = Game.teamType.Monsters; 
+        if (currentTeamType == Game.TeamType.Players) {
+            currentTeamType = Game.TeamType.Monsters; 
         } else {
-            currentTeamType = Game.teamType.Players;
+            currentTeamType = Game.TeamType.Players;
         }
+
+        // writePlayerInfo(getPlayersTeam());
     }
 
+    private List<Character> getPlayersTeam() {
+        return characterListsByTeamType[Game.TeamType.Players];
+    }
     private List<Character> getCurrentTeam() {
+        if (!characterListsByTeamType.ContainsKey(currentTeamType)) {
+            characterListsByTeamType.Add(currentTeamType, new List<Character>());
+        }
+
         return characterListsByTeamType[currentTeamType];
     }
 
     private List<Character> getEnemyTeam() {
-        Game.teamType enemyTeamType = Game.teamType.Monsters;
-        if (currentTeamType == Game.teamType.Monsters) {
-            enemyTeamType = Game.teamType.Players;
+        Game.TeamType enemyTeamType = Game.TeamType.Monsters;
+        if (currentTeamType == Game.TeamType.Monsters) {
+            enemyTeamType = Game.TeamType.Players;
         }
 
         if (!characterListsByTeamType.ContainsKey(enemyTeamType)) {
@@ -140,6 +246,7 @@ public class Game : MonoBehaviour
     }
 
     public Character getCurrentCharacter() {
+        print (currentCharacterID.ToString());
         return getCurrentTeam()[currentCharacterID];
     }
 
@@ -168,18 +275,20 @@ public class Game : MonoBehaviour
             switchTeams();
 
             currentCharacterID = 0;
-            print ("WE'VE SWITCHED TEAMS SUCCESSFULLY");
+            // print ("WE'VE SWITCHED TEAMS SUCCESSFULLY");
         } else {
             currentCharacterID++;
         }
         
         updateCurrentEnemy();
         enableButtons(true);
+
+
     }
 
     private void startGameAction(GameAction actionType) {
         if (waitingToSwitchTurns) {
-            Debug.Log("WAITING FOR TURN SWITCH, CAN'T USE GAMEACTION NOW");
+            // Debug.Log("WAITING FOR TURN SWITCH, CAN'T USE GAMEACTION NOW");
             return;
         }
 

@@ -6,6 +6,33 @@ public class Character : MonoBehaviour
 {
     private float DEFAULT_LERP_FACTOR = 0.02f;
     private float CHARACTER_EPS = 0.001f;
+
+    public enum CharacterType {
+        Eye,
+        Mage,
+        Samurai
+    }
+
+    // public static GameObject eyePrefab;
+    // public static GameObject magePrefab;
+    // [SerializeField] public static GameObject samuraiPrefab;
+
+    // public static Dictionary<CharacterType, GameObject> characterTypeToPrefab = new Dictionary<CharacterType, GameObject>(){
+    //     {CharacterType.Eye, eyePrefab},
+    //     {CharacterType.Mage, magePrefab},
+    //     {CharacterType.Samurai, samuraiPrefab}
+    // };
+
+    public struct CharacterInfo {
+        CharacterStats baseStats;
+        GameObject characterPrefab;
+    }
+
+    // public struct AnimationInfo {   
+    //     Animator animator;
+    //     List<AnimationClip> clips;
+    // }
+
 	public enum AnimationType {
 		Idle,
 		Run,
@@ -57,17 +84,17 @@ public class Character : MonoBehaviour
     private List<ActionInfo> actionsQueue = new List<ActionInfo>();
     private ActionInfo currentActionInfo = new ActionInfo(); 
 
-    public struct CharacterStats {
+    [System.Serializable] public struct CharacterStats {
         public CharacterStats(int health) {
             HP = health;
             damage = 35;
             movSpeed = 0.5f;
             critChance = 0.5f;
             critMult = 2.1f;
-            team = Game.teamType.Players;
+            team = Game.TeamType.Players;
         }
 
-        public CharacterStats(int health, int dmg, float speed, float cChance, float cMult, Game.teamType t) {
+        public CharacterStats(int health, int dmg, float speed, float cChance, float cMult, Game.TeamType t) {
             HP = health;
             damage = dmg;
             movSpeed = speed;
@@ -81,7 +108,7 @@ public class Character : MonoBehaviour
         public float movSpeed;
         public float critChance;
         public float critMult;
-        public Game.teamType team;
+        public Game.TeamType team;
     }
 
     private struct CharacterState {
@@ -101,7 +128,7 @@ public class Character : MonoBehaviour
         public Vector3 viewPortPosition;
         public Vector3 lastViewPortPosition; // position before last moveAction
         public  AnimationType curAnimationType;
-        public Game.teamType team;
+        public Game.TeamType team;
         public float targetAlpha;
         public float trailingAlpha;
         public Damage lastDamageReceived;
@@ -138,9 +165,11 @@ public class Character : MonoBehaviour
     [SerializeField] private GameObject hpBarObject;
     [SerializeField] private GameObject textPrefab;
     private List<Visual> dependentVisuals = new List<Visual>();
+    private CharacterStats baseStats;
     
     public void init(CharacterStats characterStats) {
         teamID = 0;
+        baseStats = characterStats;
 
         // REMOVE " (UnityEngine.AnimationClip)" from end of string(28 characters). EXTREMELY UNRELIABLE
         string idle = Idle.ToString();
@@ -195,6 +224,17 @@ public class Character : MonoBehaviour
         registerInScene();
     }
 
+    // public class CharacterJSONData {
+    //     int maxHP;
+
+    // }
+    // public CharacterJSONData getJSONData() {
+
+    // }
+
+    public CharacterStats getCharacterStats() {
+        return baseStats;
+    }
     public void registerVisual(Visual v) {
         dependentVisuals.Add(v);
     }
@@ -243,7 +283,7 @@ public class Character : MonoBehaviour
         characterState.curAnimationType = animationType;
     }
 
-    private void setViewPortPosition(Vector3 vPpos) {
+    public void setViewPortPosition(Vector3 vPpos) {
         Vector3 worldPos = sceneEntities.gameCamera.ViewportToWorldPoint(vPpos);
         this.gameObject.transform.position = worldPos;
         characterState.viewPortPosition = vPpos;
@@ -312,7 +352,7 @@ public class Character : MonoBehaviour
         characterState.HP += value;
     }
 
-    public Game.teamType getTeamType() {
+    public Game.TeamType getTeamType() {
         return characterState.team;
     }
 
