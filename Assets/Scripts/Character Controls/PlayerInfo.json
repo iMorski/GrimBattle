@@ -1,1 +1,6 @@
-{"data":[{"playerRegID":0,"characterID":0,"characterType":1,"stats":{"HP":350,"damage":40,"movSpeed":0.5,"critChance":0.699999988079071,"critMult":2.0999999046325685,"team":0}}]}
+{"data":[
+    {"playerRegID":0,"characterID":0,"characterType":1,"stats":{"HP":350,"damage":40,"movSpeed":0.5,"critChance":0.699999988079071,"critMult":2.0999999046325685,"team":0}},
+    {"playerRegID":0,"characterID":0,"characterType":1,"stats":{"HP":350,"damage":40,"movSpeed":0.5,"critChance":0.699999988079071,"critMult":2.0999999046325685,"team":0}}, 
+    {"playerRegID":0,"characterID":0,"characterType":1,"stats":{"HP":350,"damage":40,"movSpeed":0.5,"critChance":0.699999988079071,"critMult":2.0999999046325685,"team":0}}, 
+    {"playerRegID":0,"characterID":0,"characterType":1,"stats":{"HP":350,"damage":40,"movSpeed":0.5,"critChance":0.699999988079071,"critMult":2.0999999046325685,"team":0}}
+]}

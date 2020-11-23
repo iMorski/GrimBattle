@@ -1789,11 +1789,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemEnum: 0
+  itemType: 0
+  compatibleCharacterTypes: 01000000
   itemImpact:
   - statType: 0
     impact: 1.2
-  itemType: 0
-  compatibleCharacterTypes: 01000000
 --- !u!1 &1193599176
 GameObject:
   m_ObjectHideFlags: 0
@@ -2866,6 +2866,11 @@ PrefabInstance:
       propertyPath: game
       value: 
       objectReference: {fileID: 709159824}
+    - target: {fileID: 2224599368780713218, guid: eea71b922344bbd4ba3a3f5b379a2a3b,
+        type: 3}
+      propertyPath: critChance
+      value: 0.15
+      objectReference: {fileID: 0}
     - target: {fileID: 2224599368780713219, guid: eea71b922344bbd4ba3a3f5b379a2a3b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2995,6 +3000,11 @@ PrefabInstance:
       propertyPath: game
       value: 
       objectReference: {fileID: 709159824}
+    - target: {fileID: 3051939578067317877, guid: 109c2e3c2f964374a900759b65e08bc2,
+        type: 3}
+      propertyPath: maxHP
+      value: 210
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 109c2e3c2f964374a900759b65e08bc2, type: 3}
 --- !u!1001 &8173152702976928961
@@ -3013,6 +3023,16 @@ PrefabInstance:
         type: 3}
       propertyPath: attackPixelOffset
       value: 220
+      objectReference: {fileID: 0}
+    - target: {fileID: 8173152704802721985, guid: 66aebb13a39dc6342a14301646190166,
+        type: 3}
+      propertyPath: maxHP
+      value: 160
+      objectReference: {fileID: 0}
+    - target: {fileID: 8173152704802721985, guid: 66aebb13a39dc6342a14301646190166,
+        type: 3}
+      propertyPath: damage
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 8173152704802723646, guid: 66aebb13a39dc6342a14301646190166,
         type: 3}
