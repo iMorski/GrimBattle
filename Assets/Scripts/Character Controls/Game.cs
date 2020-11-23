@@ -280,7 +280,9 @@ public class Game : MonoBehaviour
         updateCurrentEnemy();
         enableButtons(true);
 
-
+        if (getCurrentCharacter().getAlive() == false) {
+            switchTurns();
+        }
     }
 
     private void startGameAction(GameAction actionType) {
