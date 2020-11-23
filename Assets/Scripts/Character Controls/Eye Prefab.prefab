@@ -107,7 +107,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3051939578067317867}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -15.16, y: 0.0874998, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_Children:
@@ -206,7 +206,7 @@ MonoBehaviour:
   hpBarObject: {fileID: 3051939576970997292}
   textPrefab: {fileID: 1095756212425229972, guid: d4f0415b5ba7f4e49a5d50bd57e9508a,
     type: 3}
-  maxHP: 150
-  damage: 40
+  maxHP: 200
+  damage: 35
   critChance: 0.7
   chName: 'Eye '

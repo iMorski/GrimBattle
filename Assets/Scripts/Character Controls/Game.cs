@@ -127,11 +127,8 @@ public class Game : MonoBehaviour
     }
 
     private float lastPlayerVPPosX = 0.0f;
-    private void createGameCharacter(PlayerData data) {
-       
-
-
-    }
+    // private void createGameCharacter(PlayerData data) {
+    // }
     private void loadPlayers() {
         PlayerDataList dataList = JsonUtility.FromJson<PlayerDataList>(System.IO.File.ReadAllText(PathGetter.getScriptFolderPath(this) + "/PlayerInfo.json"));
 
@@ -166,7 +163,7 @@ public class Game : MonoBehaviour
         public int playerRegID;
         public int characterID; 
         public Character.CharacterType characterType;
-        public Character.CharacterStats stats;
+        public Character.BaseStatsCharacter stats;
     }
 
     // [System.Serializable] PlayerData[] playerCharacterData;

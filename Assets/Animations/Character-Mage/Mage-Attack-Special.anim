@@ -150,12 +150,4 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
-  m_Events:
-  - time: 0.33333334
-    functionName: endAction
-    data: 
-    objectReferenceParameter: {fileID: 11500000, guid: 2046ceef17e40ae4a8047500f413c0e4,
-      type: 3}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
+  m_Events: []

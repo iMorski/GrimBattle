@@ -6,11 +6,11 @@ public class monsterController : Character
 {
     void Start()
     {
-        Character.CharacterStats stats = new Character.CharacterStats(100);
+        Character.BaseStatsCharacter stats = new Character.BaseStatsCharacter(100);
         stats.team = Game.TeamType.Monsters;
         stats.damage = 20;
         stats.critChance = 0.4f;
-        stats.HP = 400;
+        stats.maxHP = 400;
 
         this.init(stats);
         this.setName("MONSTER");

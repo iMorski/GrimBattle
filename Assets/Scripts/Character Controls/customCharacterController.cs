@@ -9,11 +9,11 @@ public class customCharacterController : Character
     public float critChance;
     public string chName;
 
-    private Character.CharacterStats stats = new Character.CharacterStats(100);
+    private Character.BaseStatsCharacter stats = new Character.BaseStatsCharacter(100);
     void Awake()
     {
         stats.team = Game.TeamType.Players;
-        stats.HP = maxHP;
+        stats.maxHP = maxHP;
         stats.damage = damage;
         stats.critChance = critChance;
 

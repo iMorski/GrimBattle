@@ -13,26 +13,6 @@ public class Character : MonoBehaviour
         Samurai
     }
 
-    // public static GameObject eyePrefab;
-    // public static GameObject magePrefab;
-    // [SerializeField] public static GameObject samuraiPrefab;
-
-    // public static Dictionary<CharacterType, GameObject> characterTypeToPrefab = new Dictionary<CharacterType, GameObject>(){
-    //     {CharacterType.Eye, eyePrefab},
-    //     {CharacterType.Mage, magePrefab},
-    //     {CharacterType.Samurai, samuraiPrefab}
-    // };
-
-    public struct CharacterInfo {
-        CharacterStats baseStats;
-        GameObject characterPrefab;
-    }
-
-    // public struct AnimationInfo {   
-    //     Animator animator;
-    //     List<AnimationClip> clips;
-    // }
-
 	public enum AnimationType {
 		Idle,
 		Run,
@@ -84,9 +64,15 @@ public class Character : MonoBehaviour
     private List<ActionInfo> actionsQueue = new List<ActionInfo>();
     private ActionInfo currentActionInfo = new ActionInfo(); 
 
-    [System.Serializable] public struct CharacterStats {
-        public CharacterStats(int health) {
-            HP = health;
+    [System.Serializable] public enum CharacterPropertyType {
+        Damage,
+        MaxHP,
+        CritChance,
+        CritMult
+    }
+    [System.Serializable] public struct BaseStatsCharacter {
+        public BaseStatsCharacter(int health) {
+            maxHP = health;
             damage = 35;
             movSpeed = 0.5f;
             critChance = 0.5f;
@@ -94,8 +80,8 @@ public class Character : MonoBehaviour
             team = Game.TeamType.Players;
         }
 
-        public CharacterStats(int health, int dmg, float speed, float cChance, float cMult, Game.TeamType t) {
-            HP = health;
+        public BaseStatsCharacter(int health, int dmg, float speed, float cChance, float cMult, Game.TeamType t) {
+            maxHP = health;
             damage = dmg;
             movSpeed = speed;
             critChance = cChance;
@@ -103,7 +89,7 @@ public class Character : MonoBehaviour
             team = t;
         }
 
-        public int HP;
+        public int maxHP;
         public int damage;
         public float movSpeed;
         public float critChance;
@@ -165,9 +151,9 @@ public class Character : MonoBehaviour
     [SerializeField] private GameObject hpBarObject;
     [SerializeField] private GameObject textPrefab;
     private List<Visual> dependentVisuals = new List<Visual>();
-    private CharacterStats baseStats;
+    private BaseStatsCharacter baseStats;
     
-    public void init(CharacterStats characterStats) {
+    public void init(BaseStatsCharacter characterStats) {
         teamID = 0;
         baseStats = characterStats;
 
@@ -191,8 +177,8 @@ public class Character : MonoBehaviour
 
         characterState = new CharacterState();
         characterState.name = "NoName";
-        characterState.maxHP = characterStats.HP;
-        characterState.HP = characterStats.HP;
+        characterState.maxHP = characterStats.maxHP;
+        characterState.HP = characterStats.maxHP;
 
         characterState.speed = characterStats.movSpeed;
         characterState.damage = characterStats.damage;
@@ -232,7 +218,7 @@ public class Character : MonoBehaviour
 
     // }
 
-    public CharacterStats getCharacterStats() {
+    public BaseStatsCharacter getCharacterStats() {
         return baseStats;
     }
     public void registerVisual(Visual v) {
